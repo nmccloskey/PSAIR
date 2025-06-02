@@ -11,7 +11,8 @@ from clatr.utils.Tier import TierManager
 from infoscopy.utils.EDADaemon import EDADaemon
 # from clatr.utils.SQLDaemon import SQLDaemon
 from infoscopy.utils.SQLDaemon import SQLDaemon
-from clatr.utils.Table import Table
+# from clatr.utils.Table import Table
+from infoscopy.utils.Table import Table
 from clatr.data.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
 
 
