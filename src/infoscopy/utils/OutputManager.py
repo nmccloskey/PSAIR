@@ -4,10 +4,13 @@ import pandas as pd
 from datetime import datetime
 import logging
 logger = logging.getLogger("CustomLogger")
-from clatr.utils.logger import logger, configure_file_handler
+# from clatr.utils.logger import logger, configure_file_handler
+from infoscopy.utils.logger import logger, configure_file_handler
 from clatr.utils.Tier import TierManager
-from clatr.utils.EDADaemon import EDADaemon
-from clatr.utils.SQLDaemon import SQLDaemon
+# from clatr.utils.EDADaemon import EDADaemon
+from infoscopy.utils.EDADaemon import EDADaemon
+# from clatr.utils.SQLDaemon import SQLDaemon
+from infoscopy.utils.SQLDaemon import SQLDaemon
 from clatr.utils.Table import Table
 from clatr.data.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
 
