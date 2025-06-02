@@ -1,15 +1,57 @@
-# Ignore outputs, logs, envs
+# Ignore input and output files
+clatr_data/
 output/
 input/
-logs/
 database/
-*.sqlite
-*.log
-venv*/
-__pycache__/
-*.pyc
-.DS_Store
-.env
+logs/
 *.xlsx
 *.pdf
 *.png
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Python virtual environments
+.venv/
+venv*/
+env/
+ENV/
+.env
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# VSCode, PyCharm
+.vscode/
+.idea/
+
+# Logs and caches
+*.log
+*.sqlite
+.cache/
+*.pkl
+*.db
+
+# Test and coverage
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Jupyter and IPython
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Misc
+.DS_Store
+Thumbs.db
