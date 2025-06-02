@@ -1,0 +1,15 @@
+# Ignore outputs, logs, envs
+output/
+input/
+logs/
+database/
+*.sqlite
+*.log
+venv*/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+*.xlsx
+*.pdf
+*.png
