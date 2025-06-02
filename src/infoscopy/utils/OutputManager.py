@@ -14,7 +14,8 @@ from infoscopy.utils.EDADaemon import EDADaemon
 from infoscopy.utils.SQLDaemon import SQLDaemon
 # from clatr.utils.Table import Table
 from infoscopy.utils.Table import Table
-from clatr.data.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
+# from clatr.data.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
+from infoscopy.utils.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
 
 
 class OutputManager:
