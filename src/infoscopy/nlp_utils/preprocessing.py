@@ -9,8 +9,8 @@ logger = logging.getLogger("CustomLogger")
 from infoscopy.nlp_utils.NLPmodel import NLPmodel
 # from clatr.utils.OutputManager import OutputManager
 from infoscopy.utils.OutputManager import OutputManager
-from clatr.data.data_processing import scrub_raw_text, clean_text, get_text_from_cha, get_two_cha_versions
-
+# from clatr.data.data_processing import scrub_raw_text, clean_text, get_text_from_cha, get_two_cha_versions
+from infoscopy.nlp_utils.data_processing import scrub_raw_text, clean_text, get_text_from_cha, get_two_cha_versions
 
 def process_sents(doc, sample_data, is_cha=False):
     doc_id = sample_data["doc_id"]
