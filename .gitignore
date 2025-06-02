@@ -55,3 +55,6 @@ ipython_config.py
 # Misc
 .DS_Store
 Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
