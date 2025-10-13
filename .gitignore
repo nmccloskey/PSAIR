@@ -25,10 +25,12 @@ build/
 dist/
 *.egg-info/
 .eggs/
+src/infoscopy.egg-info/
 
 # VSCode, PyCharm
 .vscode/
 .idea/
+*.swp
 
 # Logs and caches
 *.log
@@ -48,9 +50,13 @@ coverage.xml
 *.py,cover
 
 # Jupyter and IPython
-.ipynb_checkpoints
+.ipynb_checkpoints/
 profile_default/
 ipython_config.py
+
+# Configs
+config.yaml
+*.secrets.yaml
 
 # Misc
 .DS_Store
@@ -58,3 +64,11 @@ Thumbs.db
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Cache dirs (used by tools)
+.cache/
+.mypy_cache/
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
