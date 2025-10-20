@@ -10,7 +10,7 @@ setup(
     name="infoscopy",
     version="0.1.0",
     description="A backend scaffold for data analysis pipelines",
-    author="Your Name",
+    author="Nick McCloskey",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=read_requirements(),

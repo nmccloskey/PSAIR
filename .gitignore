@@ -1,5 +1,5 @@
 # Ignore input and output files
-clatr_data/
+*data/
 output/
 input/
 database/
