@@ -1,6 +1,6 @@
 # PSAIR - Python Scaffolding for Analysis Itineraries in Research
 
-**Status:** Early-stage, active development.  
+**Status:** Early-stage, active development (version 0.0.1a2).  
 **Stability:** APIs and module structure are subject to significant change.  
 **Intended Audience:** Developers and researchers working with CLATR- or ALASTR-like tools.
 
