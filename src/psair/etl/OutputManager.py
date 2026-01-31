@@ -5,9 +5,9 @@ from datetime import datetime
 import logging
 logger = logging.getLogger("CustomLogger")
 # from clatr.utils.logger import logger, configure_file_handler
-from infoscopy.utils.logger import logger, configure_file_handler
+from psair.utils.logger import logger, configure_file_handler
 # from clatr.utils.Tier import TierManager
-from infoscopy.utils.Tier import TierManager
+from psair.utils.Tier import TierManager
 # from clatr.utils.EDADaemon import EDADaemon
 from infoscopy.utils.EDADaemon import EDADaemon
 # from clatr.utils.SQLDaemon import SQLDaemon

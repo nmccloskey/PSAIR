@@ -1,4 +1,4 @@
-from infoscopy.etl.OutputManager import OutputManager, SQLDaemon
+from psair.etl.OutputManager import OutputManager, SQLDaemon
 
 class PipelineManager:
     _instance = None
