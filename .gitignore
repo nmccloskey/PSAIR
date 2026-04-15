@@ -5,8 +5,15 @@ input/
 database/
 logs/
 *.xlsx
-*.pdf
 *.png
+*.cha
+
+# Manuals
+*.pdf
+docs/*.pdf
+
+# Google credits
+google_creds.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
