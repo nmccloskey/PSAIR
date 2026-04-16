@@ -39,6 +39,7 @@ docs = [
   "PyPDF2>=3.0,<3.1",
   "svglib>=1.5,<2.0",
   "reportlab>=4.3,<5.0",
+  "python-docx>=1.1,<2.0",
 ]
 
 eda = [
@@ -58,6 +59,7 @@ nlp = [
 
 webapp = [
   "streamlit>=1.44,<2.0",
+  "markdown>=3.7,<4.0",
 ]
 
 full = [
@@ -74,3 +76,7 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["psair*"]
+
+[project.scripts]
+psair = "psair.cli.main:main"
+psair-manual = "psair.cli.main:main"

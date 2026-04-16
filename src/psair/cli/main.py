@@ -155,11 +155,15 @@ def cmd_chars(args: argparse.Namespace) -> int:
             include_hidden=args.include_hidden,
             report_nonascii=args.report_nonascii,
             fail_on_nonascii=args.fail_on_nonascii,
+            report_controls=args.report_controls,
+            fail_on_controls=args.fail_on_controls,
             check_trailing=args.check_trailing,
             strip_trailing=args.strip_trailing,
             check_line_endings=args.check_line_endings,
             fix_line_endings=args.fix_line_endings,
+            remove_control_chars=args.remove_control_chars,
             max_nonascii=args.max_nonascii,
+            max_controls=args.max_controls,
             warnings_as_errors=args.warnings_as_errors,
         )
     except Exception as exc:
@@ -209,11 +213,15 @@ def cmd_pdf(args: argparse.Namespace) -> int:
                 include_hidden=args.include_hidden,
                 report_nonascii=args.report_nonascii,
                 fail_on_nonascii=args.fail_on_nonascii,
+                report_controls=args.report_controls,
+                fail_on_controls=args.fail_on_controls,
                 check_trailing=args.check_trailing,
                 strip_trailing=args.strip_trailing,
                 check_line_endings=args.check_line_endings,
                 fix_line_endings=args.fix_line_endings,
+                remove_control_chars=args.remove_control_chars,
                 max_nonascii=args.max_nonascii,
+                max_controls=args.max_controls,
                 warnings_as_errors=args.warnings_as_errors,
             )
         except Exception as exc:

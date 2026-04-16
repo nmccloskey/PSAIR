@@ -45,6 +45,41 @@ If you are developing against the full experimental package layout:
 pip install psair[full]
 ```
 
+After installation, the documentation CLI is available as:
+
+```bash
+psair --help
+```
+
+If a terminal cannot find `psair`, confirm that the intended environment is active:
+
+```bash
+conda activate psair
+python -m pip install -e ".[docs]"
+psair --help
+```
+
+You can also run the command through Conda without changing the current shell:
+
+```bash
+conda run -n psair psair --help
+```
+
+The CLI currently focuses on manual/documentation workflows:
+
+```bash
+psair tree docs/manual
+psair index docs/manual --show-files
+psair search "topic" docs/manual
+psair outline docs/manual --title "Instruction Manual" --version "0.0.1"
+psair chars docs/manual --check-trailing --check-line-endings
+psair pdf docs/manual --non-interactive --force
+```
+
+PDF compilation uses Pandoc and a LaTeX PDF engine such as XeLaTeX when using
+the CLI PDF builder. Those executables must be installed separately and
+available on `PATH`.
+
 ## Stability note
 
 PSAIR is currently in alpha. Module structure, APIs, and dependency groupings may change significantly across early releases. Until the package reaches a more stable milestone, only the documentation tooling should be treated as a supported interface.
