@@ -1,0 +1,39 @@
+# ==========================================================
+# IRIDIC Tools Instruction Manual – PDF Compilation Config
+# ==========================================================
+
+title: "IRIDIC Tools Instruction Manual"
+subtitle: "Operating IRIDIC Modules for Repository Manual Compilation"
+author: "Nick McCloskey"
+date: "Version 0.1.0"
+
+geometry: margin=3cm
+fontsize: 11pt
+linestretch: 1.15
+papersize: letter
+
+titlepage: true
+titlepage-color: "FFFFFF"
+titlepage-text-color: "000000"
+titlepage-rule-height: 1
+
+toc: true
+toc-depth: 3
+numbersections: true
+
+header-includes:
+  - \usepackage{etoolbox}
+  - \apptocmd{\tableofcontents}{\clearpage}{}{}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyfoot[C]{\thepage}
+  - \fancyhead[L]{IRIDIC Tools Manual}
+  - \fancyhead[R]{Version 0.1.0}
+  - \usepackage{fvextra}
+  - \fvset{breaklines=true,breakanywhere=true}
+
+colorlinks: true
+linkcolor: blue
+urlcolor: blue
+
+highlight-style: tango
