@@ -23,12 +23,28 @@ def normalize_exts(exts: set[str] | None) -> set[str]:
 
 def resolve_executable(name: str) -> str:
     """
-    Resolve an executable from PATH or raise a helpful error.
+    Resolve an executable from PATH or pypandoc, or raise a helpful error.
     """
     resolved = shutil.which(name)
-    if not resolved:
-        raise FileNotFoundError(f"Required executable not found on PATH: {name}")
-    return resolved
+    if resolved:
+        return resolved
+
+    if name == "pandoc":
+        try:
+            import pypandoc
+
+            return pypandoc.get_pandoc_path()
+        except Exception as exc:
+            raise FileNotFoundError(
+                "Required executable not found: pandoc. Install Pandoc and make "
+                "pandoc.exe available on PATH, or install/download Pandoc through "
+                "pypandoc. On Windows, common options are "
+                "`winget install JohnMacFarlane.Pandoc`, "
+                "`conda install -c conda-forge pandoc`, or "
+                "`python -c \"import pypandoc; pypandoc.download_pandoc()\"`."
+            ) from exc
+
+    raise FileNotFoundError(f"Required executable not found on PATH: {name}")
 
 
 def iter_markdown_files(

@@ -1,46 +1,210 @@
-
 # manual_pdf Module
 
 ## Overview
 
-The `manual_pdf` module compiles modular IRIDIC manual sections into a **single PDF document**.
+The `manual_pdf` module compiles modular PSAIR manual sections into a single
+PDF document.
 
-It performs the final stage of the IRIDIC manual build pipeline by:
+It performs the final stage of the documentation build workflow by:
 
 1. Collecting Markdown manual files
-2. Assembling them into a unified Markdown document
-3. Invoking **Pandoc** to generate a PDF
+2. Assembling them into one Markdown document
+3. Invoking Pandoc to generate a PDF
 
-This module allows manuals to remain **modular and repository-friendly** while still producing a polished compiled manual suitable for:
+This lets manuals stay modular and repository-friendly while still producing a
+compiled manual suitable for distribution, publication, and archival
+documentation.
 
-- distribution
-- publication
-- archival documentation
-
-The module is designed to integrate with the IRIDIC CLI and with automated documentation workflows.
-
----
-
-# Data Model
-
-The module does not introduce persistent data structures like other manual modules.  
-Instead it operates on:
-
-- **filesystem paths**
-- **lists of Markdown files**
-- **assembled Markdown text chunks**
-
-This lightweight design keeps the PDF compilation pipeline simple and composable.
+PSAIR is currently alpha software. The documentation/manual tooling described
+here is the supported part of the package; broader areas such as EDA, NLP, ETL,
+and pipeline scaffolding remain experimental.
 
 ---
 
-# Core Functions
+## Runtime Requirements
+
+PDF compilation depends on external rendering tools:
+
+- `pandoc`, the document converter
+- a LaTeX PDF engine, usually `xelatex`
+
+The Python package `pypandoc` is included in PSAIR's documentation dependency
+group so PSAIR can discover Pandoc when `pypandoc` knows where it is. However,
+installing `pypandoc` by itself does not always install the `pandoc.exe`
+program. If `psair pdf` reports that Pandoc is missing, install Pandoc using one
+of the setup options below.
+
+---
+
+## Setting Up Pandoc on Windows
+
+### Option 1: Install Pandoc in the Conda environment
+
+This is the simplest option when working inside the `psair` Conda environment:
+
+```powershell
+conda activate psair
+conda install -c conda-forge pandoc
+```
+
+Then verify:
+
+```powershell
+pandoc --version
+where pandoc
+```
+
+Because Conda installs Pandoc inside the active environment, this avoids editing
+the global Windows PATH.
+
+### Option 2: Install Pandoc with winget
+
+From PowerShell:
+
+```powershell
+winget install JohnMacFarlane.Pandoc
+```
+
+Close and reopen the terminal, then verify:
+
+```powershell
+pandoc --version
+where pandoc
+```
+
+The installer commonly places Pandoc under:
+
+```text
+C:\Program Files\Pandoc
+```
+
+If `pandoc --version` still fails after reopening the terminal, add that folder
+to PATH manually.
+
+### Option 3: Add Pandoc to PATH manually
+
+Use this when Pandoc is installed but Windows cannot find it.
+
+1. Open the Start menu and search for `Environment Variables`.
+2. Open `Edit environment variables for your account`.
+3. Select the user variable named `Path`.
+4. Choose `Edit`.
+5. Add the folder containing `pandoc.exe`, for example:
+
+```text
+C:\Program Files\Pandoc
+```
+
+6. Save the dialogs.
+7. Close and reopen PowerShell or Command Prompt.
+8. Run:
+
+```powershell
+pandoc --version
+where pandoc
+```
+
+For a temporary PowerShell-only PATH update, use:
+
+```powershell
+$env:Path += ";C:\Program Files\Pandoc"
+```
+
+That lasts only for the current terminal session.
+
+### Option 4: Download Pandoc through pypandoc
+
+If `pypandoc` is installed, it can download a Pandoc binary:
+
+```powershell
+python -c "import pypandoc; pypandoc.download_pandoc()"
+```
+
+PSAIR will first look for `pandoc` on PATH. If it is not found and the requested
+executable is the default `pandoc`, PSAIR will also ask `pypandoc` for its
+Pandoc path.
+
+This means `psair pdf` may work even when `where pandoc` cannot find anything.
+To check the `pypandoc` path directly:
+
+```powershell
+python -c "import pypandoc; print(pypandoc.get_pandoc_path())"
+```
+
+On Windows, `pypandoc.download_pandoc()` commonly installs Pandoc under:
+
+```text
+C:\Users\<you>\AppData\Local\Pandoc
+```
+
+If you want Pandoc available to every terminal command, add that folder to PATH
+using the manual PATH steps above.
+
+---
+
+## Setting Up a PDF Engine
+
+Pandoc still needs a PDF engine such as `xelatex`.
+
+Common Windows options include:
+
+- MiKTeX
+- TeX Live
+- TinyTeX
+
+After installation, verify:
+
+```powershell
+xelatex --version
+where xelatex
+```
+
+The PSAIR CLI uses `xelatex` by default. You can choose another Pandoc-supported
+engine with:
+
+```powershell
+psair pdf docs/doctools_manual --pdf-engine lualatex
+```
+
+---
+
+## CLI Usage
+
+Compile the doctools manual:
+
+```powershell
+psair pdf docs/doctools_manual
+```
+
+Useful options:
+
+```powershell
+psair pdf docs/doctools_manual --output docs/doctools_manual.pdf
+psair pdf docs/doctools_manual --yaml docs/doctools_manual/manual_pdf.yaml
+psair pdf docs/doctools_manual --margin 0.8in
+psair pdf docs/doctools_manual --toc-depth 3
+psair pdf docs/doctools_manual --include-outline
+psair pdf docs/doctools_manual --file-dividers
+psair pdf docs/doctools_manual --keep-temp-md
+```
+
+Before building the PDF, the CLI can prepare the manual outline and run
+character/content checks. If issues are found, interactive runs ask whether to
+continue. For automated workflows:
+
+```powershell
+psair pdf docs/doctools_manual --non-interactive --force
+```
+
+---
+
+## Core Function
 
 ## build_manual_pdf
 
 Primary entry point for PDF compilation.
 
-```
+```python
 build_manual_pdf(manual_dir)
 ```
 
@@ -55,7 +219,7 @@ Creates a compiled manual PDF from modular Markdown files.
 | `manual_dir` | Root manual directory |
 | `yaml_path` | Optional Pandoc metadata YAML |
 | `output_path` | Destination PDF file |
-| `pandoc` | Pandoc executable |
+| `pandoc` | Pandoc executable name or path |
 | `pdf_engine` | Pandoc PDF engine |
 | `pagebreaks` | Insert page breaks between sections |
 | `strip_heading_numbers` | Remove numeric prefixes from headings |
@@ -75,21 +239,15 @@ The function performs the following sequence:
 
 1. Discover Markdown files
 2. Assemble them into a unified Markdown document
-3. Write the temporary Markdown file
+3. Write a temporary Markdown file
 4. Invoke Pandoc to generate the PDF
 5. Remove temporary artifacts unless preservation is requested
 
-Returns:
-
-```
-Path
-```
-
-representing the compiled PDF location.
+Returns a `Path` representing the compiled PDF location.
 
 ---
 
-# Supporting Utilities
+## Supporting Utilities
 
 ## iter_markdown_files
 
@@ -104,7 +262,7 @@ Key behaviors:
 
 Example discovered structure:
 
-```
+```text
 manual/
     01_intro.md
     02_installation.md
@@ -112,17 +270,13 @@ manual/
         03_01_overview.md
 ```
 
-The files are returned in stable lexical order.
-
----
-
 ## assemble_markdown
 
 Combines multiple Markdown files into a single document.
 
 Example behavior:
 
-```
+```text
 Section 1 text
 
 \newpage
@@ -136,41 +290,31 @@ Optional features include:
 - removal of numeric heading prefixes
 - file boundary comments
 
-These transformations help produce cleaner final PDFs.
-
----
-
 ## strip_leading_heading_numbers
 
 Removes numeric prefixes from Markdown headings.
 
 Example:
 
-```
+```markdown
 # 03 Overview
 ```
 
-becomes
+becomes:
 
-```
+```markdown
 # Overview
 ```
 
-This allows numeric ordering in filenames without cluttering the compiled manual.
-
----
-
 ## add_pagebreaks_between_sections
 
-Inserts LaTeX page breaks between assembled Markdown sections.
+Inserts LaTeX page breaks between assembled Markdown sections:
 
-```
+```markdown
 \newpage
 ```
 
 Pandoc interprets these directives during PDF generation.
-
----
 
 ## build_pandoc_extra_args
 
@@ -178,15 +322,11 @@ Constructs Pandoc CLI arguments used during compilation.
 
 Example generated arguments:
 
-```
+```text
 --toc
 --toc-depth 3
 -V geometry:margin=1in
 ```
-
-These parameters can override YAML configuration values.
-
----
 
 ## run_pandoc
 
@@ -194,100 +334,58 @@ Executes the Pandoc command used to produce the final PDF.
 
 Example command executed internally:
 
-```
+```powershell
 pandoc assembled.md -o manual.pdf --pdf-engine xelatex
 ```
 
-The function captures output and raises a descriptive error if compilation fails.
-
----
+The function captures output and raises a descriptive error if compilation
+fails.
 
 ## resolve_executable
 
-Resolves the Pandoc executable from the system PATH.
+Resolves the Pandoc executable from PATH. For the default `pandoc` executable,
+PSAIR can also ask `pypandoc` for a known Pandoc path.
 
-If Pandoc is not found, the function raises a clear error message.
-
----
-
-# CLI Integration
-
-The module is exposed through the IRIDIC CLI command:
-
-```
-iridic pdf
-```
-
-Example usage:
-
-```
-iridic pdf manual
-```
-
-Optional arguments include:
-
-```
---yaml manual_pdf.yaml
---output manual.pdf
---margin 0.8in
---toc-depth 3
---include-outline
---file-dividers
-```
-
-Internally, the CLI command invokes:
-
-```
-build_manual_pdf()
-```
-
-after optional preflight steps such as outline generation and character validation. fileciteturn3file0
+If Pandoc is not found, the function raises a setup-oriented error message.
 
 ---
 
-# Role Within IRIDIC
+## Troubleshooting
 
-The `manual_pdf` module is the **final build stage** of the IRIDIC documentation pipeline.
+If PSAIR cannot find Pandoc:
 
-Typical workflow:
-
-```
-manual editing
-        ↓
-manual_chars validation
-        ↓
-manual_outline generation
-        ↓
-manual_pdf compilation
+```powershell
+where pandoc
+pandoc --version
 ```
 
-This layered design allows each stage to remain modular and reusable.
+If Pandoc is present but PDF compilation fails with a LaTeX error:
 
-The compiled PDF serves as the **canonical distributable manual**.
+```powershell
+where xelatex
+xelatex --version
+```
+
+If MiKTeX reports that this is a fresh TeX installation, open the MiKTeX Console
+once and finish the first-run setup. If prompted, allow MiKTeX to install
+missing packages automatically. Then reopen the terminal and retry the PSAIR PDF
+command.
+
+If Pandoc was installed into a different Conda environment, activate the same
+environment used to run PSAIR:
+
+```powershell
+conda activate psair
+python -m pip show psair
+where psair
+where pandoc
+```
 
 ---
 
-# Design Principles
+## Summary
 
-The module follows several design goals.
-
-**Modular documentation**  
-Manual sections remain independent Markdown files.
-
-**Deterministic builds**  
-Stable file ordering ensures reproducible manuals.
-
-**Minimal transformation**  
-Content is preserved as written except for optional formatting adjustments.
-
-**External rendering engine**  
-Pandoc performs the heavy lifting for PDF generation.
-
----
-
-# Summary
-
-`manual_pdf` compiles modular Markdown manuals into a single formatted PDF.
+`manual_pdf` compiles modular Markdown manuals into a formatted PDF.
 
 Core capabilities include:
 
@@ -295,5 +393,7 @@ Core capabilities include:
 - section assembly
 - optional formatting transformations
 - Pandoc-driven PDF compilation
+- PATH and `pypandoc` discovery for the Pandoc executable
 
-This module completes the IRIDIC documentation pipeline by producing **publishable manuals from modular source files**.
+This module completes PSAIR's supported documentation workflow by producing
+publishable manuals from modular source files.
