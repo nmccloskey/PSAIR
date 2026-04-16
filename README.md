@@ -80,6 +80,26 @@ PDF compilation uses Pandoc and a LaTeX PDF engine such as XeLaTeX when using
 the CLI PDF builder. Those executables must be installed separately and
 available on `PATH`.
 
+## 🧪 Testing
+
+This project uses [pytest](https://docs.pytest.org/) for its testing suite.  
+All tests are located under the `tests/` directory, organized by module/function.
+
+### Running Tests
+To run the full suite:
+
+```bash
+pytest
+```
+Run with verbose output:
+```bash
+pytest -v
+```
+Run a specific test file:
+```bash
+pytest tests/test_manual/test_pdf.py
+```
+
 ## Stability note
 
 PSAIR is currently in alpha. Module structure, APIs, and dependency groupings may change significantly across early releases. Until the package reaches a more stable milestone, only the documentation tooling should be treated as a supported interface.
