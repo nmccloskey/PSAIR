@@ -58,13 +58,15 @@ nlp = [
   "docx2txt>=0.8,<1.0",
 ]
 
-webapp = [
+web = [
   "streamlit>=1.44,<2.0",
   "markdown>=3.7,<4.0",
 ]
 
+dev = ["pytest"]
+
 full = [
-  "psair[docs,eda,nlp,webapp]",
+  "psair[docs,eda,nlp,web,dev]",
 ]
 
 [project.urls]
