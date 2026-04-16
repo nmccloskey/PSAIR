@@ -1,5 +1,11 @@
 # PSAIR — Python Scaffolding for Analysis Itineraries in Research
 
+
+![PyPI version](https://img.shields.io/pypi/v/psair)
+![Python](https://img.shields.io/pypi/pyversions/psair)
+![License](https://img.shields.io/github/license/nmccloskey/PSAIR)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://psair-dev.streamlit.app/)
+
 **Status:** Alpha, active development  
 **Current supported component:** documentation/manual tooling  
 **Broader scope:** experimental infrastructure for ETL, EDA, NLP, and pipeline development

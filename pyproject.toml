@@ -63,10 +63,27 @@ web = [
   "markdown>=3.7,<4.0",
 ]
 
-dev = ["pytest"]
+dev = [
+  "pytest>=8,<9",
+]
 
 full = [
-  "psair[docs,eda,nlp,web,dev]",
+  "openpyxl>=3.1,<3.2",
+  "PyPDF2>=3.0,<3.1",
+  "pypandoc>=1.17,<2.0",
+  "svglib>=1.5,<2.0",
+  "reportlab>=4.3,<5.0",
+  "python-docx>=1.1,<2.0",
+  "scikit-learn>=1.6,<1.7",
+  "scipy>=1.10.1,<1.16",
+  "matplotlib>=3.10,<3.11",
+  "seaborn>=0.13,<0.14",
+  "spacy>=3.8,<4.0",
+  "benepar>=0.2,<0.3",
+  "nltk>=3.9,<4.0",
+  "docx2txt>=0.8,<1.0",
+  "streamlit>=1.44,<2.0",
+  "markdown>=3.7,<4.0",
 ]
 
 [project.urls]
@@ -83,3 +100,4 @@ include = ["psair*"]
 [project.scripts]
 psair = "psair.cli.main:main"
 psair-manual = "psair.cli.main:main"
+streamlit_psair = "psair.webapp.streamlit_app:main"
