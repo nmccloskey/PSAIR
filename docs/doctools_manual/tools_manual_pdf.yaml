@@ -1,11 +1,11 @@
 # ==========================================================
-# IRIDIC Tools Instruction Manual – PDF Compilation Config
+# PSAIR Documentation Tools Instruction Manual – PDF Compilation Config
 # ==========================================================
 
-title: "IRIDIC Tools Instruction Manual"
-subtitle: "Operating IRIDIC Modules for Repository Manual Compilation"
+title: "PSAIR Documentation Tools Instruction Manual"
+subtitle: "Operating PSAIR Modules for Repository Manual Compilation"
 author: "Nick McCloskey"
-date: "Version 0.1.0"
+date: "Version 0.0.1a2"
 
 geometry: margin=3cm
 fontsize: 11pt
