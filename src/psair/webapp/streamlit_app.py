@@ -61,16 +61,16 @@ def main() -> None:
 
 
     st.subheader(
-        "PSAIR Manual"
+        "PSAIR Documentation Tools Manual"
     )
-    # render_manual_ui(
-    #     repo_root=repo_root,
-    #     manual_rel_dir="docs/psair_manual",
-    #     pdf_yaml_rel_path="docs/psair_manual/psair_manual_pdf.yaml",
-    #     expander_label="📘 Show / Hide PSAIR Manual Menu",
-    #     ui_key="psair_manual",
-    #     enable_pdf_export=True,
-    # )
+    render_manual_ui(
+        repo_root=repo_root,
+        manual_rel_dir="docs/doctools_manual",
+        pdf_yaml_rel_path="docs/doctools_manual/doctools_manual_pdf.yaml",
+        expander_label="📘 Show / Hide PSAIR Documentation Tools Manual Menu",
+        ui_key="psair_doctools_manual",
+        enable_pdf_export=True,
+    )
 
     # Placeholder body content
     st.markdown("---")
