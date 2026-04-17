@@ -59,6 +59,17 @@ def main() -> None:
     )
     st.caption(f"Version: {__version__}")
 
+    st.subheader(
+        "PSAIR Manual"
+    )
+    render_manual_ui(
+        repo_root=repo_root,
+        manual_rel_dir="docs/psair_manual",
+        pdf_yaml_rel_path="docs/psair_manual/psair_manual_pdf.yaml",
+        expander_label="📘 Show / Hide PSAIR Manual Menu",
+        ui_key="psair_manual",
+        enable_pdf_export=True,
+    )
 
     st.subheader(
         "PSAIR Documentation Tools Manual"
