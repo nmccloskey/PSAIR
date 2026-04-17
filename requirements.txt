@@ -1,0 +1,3 @@
+# Streamlit Community Cloud app dependencies.
+# Keep base `psair` dependency-free while installing viewer/export extras here.
+.[view]

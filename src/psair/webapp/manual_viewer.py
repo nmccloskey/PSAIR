@@ -207,6 +207,17 @@ def _render_manual_downloads(
     )
     docx_available = enable_docx_export and backends["docx"]
     if not pdf_available and not docx_available:
+        unavailable_reasons = []
+        if enable_docx_export and not backends["docx"]:
+            unavailable_reasons.append("DOCX export requires python-docx.")
+        if enable_pdf_export and not (
+            backends["pandoc_pdf"] or backends["weasyprint_pdf"]
+        ):
+            unavailable_reasons.append(
+                "PDF export requires Pandoc or the markdown/weasyprint packages."
+            )
+        if unavailable_reasons:
+            st.caption(f"Manual export unavailable: {' '.join(unavailable_reasons)}")
         return
 
     yaml_path = _resolve_pdf_yaml_path(repo_root, manual_root, pdf_yaml_rel_path)
