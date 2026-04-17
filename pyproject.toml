@@ -100,4 +100,3 @@ include = ["psair*"]
 [project.scripts]
 psair = "psair.cli.main:main"
 psair-manual = "psair.cli.main:main"
-streamlit_psair = "psair.webapp.streamlit_app:main"
