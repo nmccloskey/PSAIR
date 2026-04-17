@@ -1,4 +1,4 @@
-# PSAIR — Python Scaffolding for Analysis Itineraries in Research
+# PSAIR - Python Scaffolding for Analysis Itineraries in Research
 
 
 ![PyPI version](https://img.shields.io/pypi/v/psair)
@@ -86,7 +86,7 @@ PDF compilation uses Pandoc and a LaTeX PDF engine such as XeLaTeX when using
 the CLI PDF builder. Those executables must be installed separately and
 available on `PATH`.
 
-## 🧪 Testing
+## Testing
 
 This project uses [pytest](https://docs.pytest.org/) for its testing suite.  
 All tests are located under the `tests/` directory, organized by module/function.

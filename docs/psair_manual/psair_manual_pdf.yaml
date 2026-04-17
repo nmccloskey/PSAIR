@@ -1,9 +1,9 @@
 # ==========================================================
-# PSAIR Documentation Tools Instruction Manual – PDF Compilation Config
+# PSAIR Documentation Tools Instruction Manual - PDF Compilation Config
 # ==========================================================
 
-title: "PSAIR Documentation Tools Instruction Manual"
-subtitle: "Operating PSAIR Modules for Repository Manual Compilation"
+title: "PSAIR Instruction Manual"
+subtitle: "Python Scaffolding for Analysis Itineraries in Research"
 author: "Nick McCloskey"
 date: "Version 0.0.2a1"
 
@@ -27,7 +27,7 @@ header-includes:
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
   - \fancyfoot[C]{\thepage}
-  - \fancyhead[L]{PSAIR Documentation Tools Manual}
+  - \fancyhead[L]{PSAIR Manual}
   - \fancyhead[R]{Version 0.0.2a1}
   - \usepackage{fvextra}
   - \fvset{breaklines=true,breakanywhere=true}

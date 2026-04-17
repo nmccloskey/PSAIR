@@ -285,7 +285,7 @@ def apply_fixes(
     bool
         True if the file was modified.
     """
-    original = path.read_text(encoding="utf-8", errors="replace")
+    original = path.read_bytes().decode("utf-8", errors="replace")
     text = original
 
     if strip_trailing:
