@@ -1,5 +1,5 @@
-import os
 import math
+from pathlib import Path
 import numpy as np
 import pandas as pd
 
@@ -205,10 +205,12 @@ def visualize_distinctive_features(OM, section, comparison_cols):
             filtered_df = labeled_df.dropna(subset=[feature])
 
             # kdeplot_title = f"{feature}_{int(row['group_name_1'])}v{int(row['group_name_2'])}"
-            # kdeplot_file_path = os.path.join(
-            #     table.get_file_path(),
-            #     "distinctive_features", "density_plots", table.name,
-            #     f"{kdeplot_title}_kdeplots.png"
+            # kdeplot_file_path = (
+            #     Path(table.get_file_path())
+            #     / "distinctive_features"
+            #     / "density_plots"
+            #     / table.name
+            #     / f"{kdeplot_title}_kdeplots.png"
             # )
 
             # make_density_plot(
@@ -224,10 +226,11 @@ def visualize_distinctive_features(OM, section, comparison_cols):
 
         if len(dist_feats) > 1:
             pairplot_title = f"Top {len(dist_feats)} Distinctive Features in {table.name}"
-            pairplot_file_path = os.path.join(
-                table.get_file_path(),
-                "distinctive_features", "pairplots",
-                f"{table.name}_dist_feat_pairplot.png"
+            pairplot_file_path = (
+                Path(table.get_file_path())
+                / "distinctive_features"
+                / "pairplots"
+                / f"{table.name}_dist_feat_pairplot.png"
             )
 
             valid_feats = [f for f in dist_feats if f in labeled_df.columns]
@@ -255,7 +258,8 @@ def make_spacy_dep_pdfs(doc, doc_id: str, path: str):
     """
     NLP = NLPModel()
     nlp = NLP.get_nlp()
-    os.makedirs(path, exist_ok=True)
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
 
     logger.info(f"Generating dependency tree PDF for doc: {doc_id}")
     
@@ -264,28 +268,30 @@ def make_spacy_dep_pdfs(doc, doc_id: str, path: str):
     for i, sent in enumerate(doc.sents, 1):
         subdoc = nlp(sent.text)
         svg = displacy.render(subdoc, style="dep", page=False, jupyter=False)
+        tmp_svg_path = None
 
         try:
             with NamedTemporaryFile(delete=False, suffix=".svg") as tmp_svg:
-                tmp_svg_path = tmp_svg.name
+                tmp_svg_path = Path(tmp_svg.name)
                 tmp_svg.write(svg.encode("utf-8"))
 
             drawing = svg2rlg(tmp_svg_path)
-            tmp_pdf_path = NamedTemporaryFile(delete=False, suffix=".pdf").name
+            tmp_pdf_path = Path(NamedTemporaryFile(delete=False, suffix=".pdf").name)
             renderPDF.drawToFile(drawing, tmp_pdf_path)
             pdf_paths.append(tmp_pdf_path)
 
         except Exception as e:
             logger.error(f"Failed to render dep tree for sentence {i}: {e}")
         finally:
-            try:
-                os.remove(tmp_svg_path)
-            except Exception as cleanup_err:
-                logger.warning(f"Could not delete temp SVG: {cleanup_err}")
+            if tmp_svg_path is not None:
+                try:
+                    tmp_svg_path.unlink()
+                except Exception as cleanup_err:
+                    logger.warning(f"Could not delete temp SVG: {cleanup_err}")
 
     # Merge all per-sentence PDFs
     if pdf_paths:
-        merged_path = os.path.join(path, f"doc_{doc_id}_dep_trees.pdf")
+        merged_path = path / f"doc_{doc_id}_dep_trees.pdf"
         merger = PdfMerger()
         for pdf in pdf_paths:
             merger.append(pdf)
@@ -297,7 +303,7 @@ def make_spacy_dep_pdfs(doc, doc_id: str, path: str):
         # Cleanup temp PDFs
         for pdf in pdf_paths:
             try:
-                os.remove(pdf)
+                pdf.unlink()
             except Exception as e:
                 logger.warning(f"Could not delete temp PDF: {e}")
 
@@ -351,9 +357,9 @@ def generate_corr_maps(OM, section: str, image_format: str = "pdf"):
         plt.title(f"Feature Correlations for {table.name}")
         plt.tight_layout()
 
-        file_path = os.path.join(OM.output_dir, table.subdir, "correlations")
-        os.makedirs(file_path, exist_ok=True)
-        image_path = os.path.join(file_path, f"{table.name}_corr_heatmap.{image_format}")
+        file_path = Path(OM.output_dir) / table.subdir / "correlations"
+        file_path.mkdir(parents=True, exist_ok=True)
+        image_path = file_path / f"{table.name}_corr_heatmap.{image_format}"
         OM.save_image(image_path, plt)
         plt.close()
 
@@ -364,10 +370,10 @@ def generate_corr_maps(OM, section: str, image_format: str = "pdf"):
 
     for sheet_name, corr_mat, file_path, gran in zip(sheet_names, corr_mats, file_paths, granularities):
         gran_spec = f"_{gran}" if gran else ""
-        df_path = os.path.join(file_path, f"{section}{gran_spec}_corr_matrices.xlsx")
+        df_path = Path(file_path) / f"{section}{gran_spec}_corr_matrices.xlsx"
         
         if corr_mat is not None and not corr_mat.empty:
-            mode = "a" if os.path.exists(df_path) else "w"
+            mode = "a" if df_path.exists() else "w"
             with pd.ExcelWriter(df_path, mode=mode) as writer:
                 corr_mat.to_excel(writer, sheet_name=sheet_name, index=False)
             logger.info(f"Exported corr map for table '{sheet_name}' to {file_path}")
@@ -401,13 +407,13 @@ def generate_data_heatmaps(OM, section: str, chunk_size: int = 50):
         df_clustermap = df_scaled.dropna(axis=0, how="any")
 
         # Output directory
-        output_dir = os.path.join(OM.output_dir, table.subdir, "heatmaps")
-        os.makedirs(output_dir, exist_ok=True)
+        output_dir = Path(OM.output_dir) / table.subdir / "heatmaps"
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         if df_clustermap is not None and not df_clustermap.empty:
             # --- Generate clustermap
             clustermap = sns.clustermap(df_clustermap, cmap="viridis", figsize=(10, 10), yticklabels=False)
-            clustermap_path = tempfile.mktemp(suffix="_clustermap.pdf")
+            clustermap_path = Path(tempfile.mktemp(suffix="_clustermap.pdf"))
             clustermap.savefig(clustermap_path)
             plt.close()
 
@@ -432,13 +438,13 @@ def generate_data_heatmaps(OM, section: str, chunk_size: int = 50):
             plt.title(f"{table.name} Rows {start + 1} - {start + len(chunk)}")
             plt.tight_layout()
 
-            tmp_path = tempfile.mktemp(suffix=".pdf")
+            tmp_path = Path(tempfile.mktemp(suffix=".pdf"))
             plt.savefig(tmp_path)
             temp_files.append(tmp_path)
             plt.close()
 
         # --- Merge PDF
-        merged_pdf_path = os.path.join(output_dir, f"{table.name}_data_heatmap.pdf")
+        merged_pdf_path = output_dir / f"{table.name}_data_heatmap.pdf"
         merger = PdfMerger()
         for path in temp_files:
             merger.append(path)
@@ -448,13 +454,13 @@ def generate_data_heatmaps(OM, section: str, chunk_size: int = 50):
 
         for path in temp_files:
             try:
-                os.remove(path)
+                path.unlink()
             except Exception as e:
                 logger.warning(f"Could not delete temp file: {e}")
 
     # --- Export all reordered indices to Excel
     if clustermap_index_dict:
-        excel_path = os.path.join(OM.output_dir, f"{section}_clustermap_indices.xlsx")
+        excel_path = Path(OM.output_dir) / f"{section}_clustermap_indices.xlsx"
         with pd.ExcelWriter(excel_path) as writer:
             for table_name, pk_df in clustermap_index_dict.items():
                 pk_df.to_excel(writer, sheet_name=table_name, index=False)

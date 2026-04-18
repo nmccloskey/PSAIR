@@ -1,4 +1,5 @@
-import os
+from pathlib import Path
+
 import yaml
 import pandas as pd
 from datetime import datetime
@@ -36,7 +37,7 @@ class OutputManager:
 
     def _load_yaml(self, file_path):
         try:
-            with open(file_path, "r") as f:
+            with Path(file_path).open("r") as f:
                 return yaml.safe_load(f) or {}
         except Exception as e:
             logger.error(f"Error loading config file {file_path}: {e}")
@@ -49,9 +50,9 @@ class OutputManager:
         self.output_label = self.config.get("output_label", "")
         configure_file_handler(self.output_label)
 
-        self.input_dir = os.path.abspath(os.path.expanduser(self.config.get('input_dir', 'clatr_data/input')))
-        self.output_dir = os.path.abspath(os.path.expanduser(self.config.get('output_dir', 'clatr_data/output')))
-        self.database_dir = os.path.abspath(os.path.expanduser(self.config.get('database_dir', 'clatr_data/database')))
+        self.input_dir = Path(self.config.get("input_dir", "clatr_data/input")).expanduser().resolve()
+        self.output_dir = Path(self.config.get("output_dir", "clatr_data/output")).expanduser().resolve()
+        self.database_dir = Path(self.config.get("database_dir", "clatr_data/database")).expanduser().resolve()
         self.sections = self.config.get("sections", {})
         
         self.cluster = self.config.get("cluster", False)
@@ -74,24 +75,24 @@ class OutputManager:
 
     def _init_output_dir(self):
         self.timestamp = datetime.now().strftime("%y%m%d_%H%M")
-        self.output_dir = os.path.join(self.output_dir, f"{self.output_label}_{self.timestamp}")
-        os.makedirs(self.output_dir, exist_ok=True)
+        self.output_dir = self.output_dir / f"{self.output_label}_{self.timestamp}"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Output directory set at {self.output_dir}")
     
     def _init_db(self):
         """Initializes database path and creates empty tables via SQLDaemon."""
-        self.db_path = os.path.join(self.database_dir, f"{self.output_label}_{self.timestamp}.sqlite")
-        os.makedirs(self.database_dir, exist_ok=True)
+        self.db_path = self.database_dir / f"{self.output_label}_{self.timestamp}.sqlite"
+        self.database_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Database set at {self.db_path}")
 
     def create_table(self, name, sheet_name, section, subdir, file_name, primary_keys, pivot):
-        table_dir = os.path.join(self.output_dir, subdir)
+        table_dir = self.output_dir / subdir
         logger.info(f"Creating table {name} with PKs {primary_keys} at {subdir}.")
         self.tables[name] = Table(self, name, sheet_name, section, subdir, file_name, primary_keys, pivot)
         self.db.create_empty_table(name, primary_keys)
 
         try:
-            os.makedirs(table_dir, exist_ok=True)
+            table_dir.mkdir(parents=True, exist_ok=True)
             logger.info(f"Directory created at {table_dir}")
         except OSError as e:
             logger.error(f"Error creating directory: {e}")
@@ -101,8 +102,8 @@ class OutputManager:
 
     def save_text(self, subdir, filename, content):
         try:
-            filepath = os.path.join(subdir, filename)
-            with open(filepath, "w", encoding="utf-8") as f:
+            filepath = Path(subdir) / filename
+            with filepath.open("w", encoding="utf-8") as f:
                 f.write(content)
             logger.info(f"Saved text file: {filepath}")
             return filepath
@@ -112,7 +113,8 @@ class OutputManager:
 
     def save_image(self, file_path, plt):
         try:
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            file_path = Path(file_path)
+            file_path.parent.mkdir(parents=True, exist_ok=True)
             plt.savefig(file_path)
             logger.info(f"Saved image file: {file_path}")
         except Exception as e:
@@ -205,8 +207,8 @@ class OutputManager:
         try:
             table = self.tables[table_name]
             table_dir = table.get_file_path()
-            file_path = os.path.join(table_dir, table.file_name)
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            file_path = Path(table_dir) / table.file_name
+            file_path.parent.mkdir(parents=True, exist_ok=True)
         except Exception as e:
             logger.error(f"Cannot get file path for table '{table_name}': {e}.")
             return
@@ -214,7 +216,7 @@ class OutputManager:
         try:
             df = table.get_data()
             if df is not None and not df.empty:
-                mode = "a" if os.path.exists(file_path) else "w"
+                mode = "a" if file_path.exists() else "w"
                 with pd.ExcelWriter(file_path, mode=mode) as writer:
                     df.to_excel(writer, sheet_name=table.sheet_name, index=False)
                 logger.info(f"Exported table '{table_name}' to {file_path}")

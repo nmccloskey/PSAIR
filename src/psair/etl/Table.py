@@ -1,5 +1,6 @@
-import os
 import re
+from pathlib import Path
+
 from psair.core.logger import logger
 
 
@@ -12,7 +13,7 @@ class Table:
         self.subdir = subdir
         self.file_name = file_name
         self.file_base = re.sub(r'\.[^.]*$', '', self.file_name)
-        self.file_path = os.path.join(self.om.output_dir, self.subdir)
+        self.file_path = Path(self.om.output_dir) / self.subdir
         self.primary_keys = primary_keys
         self.source_fn = None
         self.family = None

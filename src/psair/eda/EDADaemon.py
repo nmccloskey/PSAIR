@@ -1,5 +1,6 @@
-import os
 import itertools
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from collections import Counter
@@ -390,7 +391,7 @@ class EDADaemon:
         """
         try:
             subdir = self.om.tables[base_table_name].get_subdir()
-            path = os.path.join(subdir, agg_subdir)
+            path = Path(subdir) / agg_subdir
             pk_cols = self.om.tables[base_table_name].get_pks()
 
             numeric_cols, categorical_cols, group_keys, group_idxs, group_by_keys = self.get_grouping_info(df, group_by, pk_cols)
@@ -466,7 +467,7 @@ class EDADaemon:
         """
         try:
             subdir = self.om.tables[base_table_name].get_subdir()
-            path = os.path.join(subdir, gcomp_subdir)
+            path = Path(subdir) / gcomp_subdir
             pk_cols = self.om.tables[base_table_name].get_pks()
 
             numeric_cols, cat_cols, group_keys, group_idxs, group_by_keys = self.get_grouping_info(df, group_by, pk_cols, "gcomp")

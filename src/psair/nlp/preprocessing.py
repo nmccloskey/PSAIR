@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import docx2txt as dx
 from tqdm import tqdm
@@ -130,7 +129,7 @@ def read_chat_file(file_path: str) -> dict:
     return text_content
 
 def read_text_file(file_path: str) -> str:
-    with open(file_path, "r", encoding="utf-8", errors="replace") as file:
+    with Path(file_path).open("r", encoding="utf-8", errors="replace") as file:
         text_content = file.read()
         text_content = scrub_raw_text(text_content)
         logger.info(f"Processed TXT file: {file_path}")
@@ -227,7 +226,8 @@ def preprocess_text(PM) -> list:
     """
     OM = OutputManager()
 
-    if not os.path.isdir(OM.input_dir):
+    input_dir = Path(OM.input_dir)
+    if not input_dir.is_dir():
         raise FileNotFoundError(f"Input directory '{OM.input_dir}' does not exist.")
     
     PM.sections["preprocessing"].create_raw_data_tables()
@@ -235,9 +235,9 @@ def preprocess_text(PM) -> list:
     doc_id = 1
     doc_ids = []
     allowed_extensions = {".cha", ".txt", ".docx", ".csv", ".xlsx"}
-    file_paths = [f for f in Path(OM.input_dir).rglob("*") if f.suffix.lower() in allowed_extensions and f.is_file()]
+    file_paths = [f for f in input_dir.rglob("*") if f.suffix.lower() in allowed_extensions and f.is_file()]
     logger.info(f"Paths: {file_paths}")
-    file_names = [str(os.path.basename(f)) for f in file_paths]
+    file_names = [f.name for f in file_paths]
     logger.info(f"Names: {file_names}")
     logger.info(f"Found {len(file_paths)} files in '{OM.input_dir}'. Processing started...")
     progress_bar = tqdm(zip(file_names, file_paths), desc="Reading Files", dynamic_ncols=True)
