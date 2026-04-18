@@ -1,7 +1,7 @@
 # Instruction Manual
 
-**Version:** 0.0.0  
-**Generated:** 2026-04-18  
+**Version:** 0.0.0
+**Generated:** 2026-04-18
 
 ---
 
@@ -26,12 +26,12 @@
 - [01_02_optional_extras.md — Optional Extras and Build Splits](01_overview/01_02_optional_extras.md)
 
 ### 02_metadata/
-- [02_01_tiers.md](02_metadata/02_01_tiers.md)
-- [02_02_discovery.md](02_metadata/02_02_discovery.md)
+- [02_01_tiers.md — Metadata Tiers](02_metadata/02_01_tiers.md)
+- [02_02_discovery.md — File Discovery](02_metadata/02_02_discovery.md)
 
 ### 03_nlp_module/
-- [03_01_preprocessing.md](03_nlp_module/03_01_preprocessing.md)
-- [03_02_nlp_model.md](03_nlp_module/03_02_nlp_model.md)
+- [03_01_preprocessing.md — NLP Preprocessing](03_nlp_module/03_01_preprocessing.md)
+- [03_02_nlp_model.md — NLP Model](03_nlp_module/03_02_nlp_model.md)
 
 ---
 

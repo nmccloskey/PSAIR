@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from psair.manual.chars import scan_file
 from psair.manual.outline import (
     Entry,
     build_manual_outline,
@@ -112,6 +113,28 @@ def test_build_manual_outline_writes_file_and_excludes_existing_outline(tmp_path
     assert "# Demo Manual" in text
     assert "01_intro.md" in text
     assert text.count("00_outline.md") == 0
+
+
+def test_build_manual_outline_writes_lf_without_trailing_whitespace(tmp_path: Path) -> None:
+    manual = tmp_path / "manual"
+    write(manual / "01_intro.md", "# Intro")
+
+    output = build_manual_outline(
+        manual,
+        manual_title="Demo Manual",
+        manual_version="9.9.9",
+    )
+
+    raw = output.read_bytes()
+    warnings, errors = scan_file(
+        output,
+        check_trailing=True,
+        check_line_endings=True,
+    )
+
+    assert b"\r\n" not in raw
+    assert warnings == []
+    assert errors == []
 
 
 def test_ensure_manual_outline_respects_if_missing_only(tmp_path: Path) -> None:

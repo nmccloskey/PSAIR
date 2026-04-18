@@ -272,8 +272,8 @@ def render_outline_markdown(
     md: List[str] = []
     md.append(f"# {manual_title}")
     md.append("")
-    md.append(f"**Version:** {manual_version}  ")
-    md.append(f"**Generated:** {today}  ")
+    md.append(f"**Version:** {manual_version}")
+    md.append(f"**Generated:** {today}")
     md.append("")
     md.append("---")
     md.append("")
@@ -296,7 +296,7 @@ def render_outline_markdown(
     md.append("- This outline is a derived support artifact for navigation and build workflows.")
     md.append("")
 
-    return "\n".join(md)
+    return "\n".join(line.rstrip(" \t") for line in md)
 
 
 def build_manual_outline(
@@ -337,7 +337,7 @@ def build_manual_outline(
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(markdown, encoding="utf-8")
+    output_path.write_text(markdown, encoding="utf-8", newline="\n")
     return output_path
 
 
