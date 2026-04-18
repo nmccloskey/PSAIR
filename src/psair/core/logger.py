@@ -37,7 +37,7 @@ def get_root() -> Path:
     return _root_dir
 
 
-def _rel(path: Path) -> str:
+def rel(path: Path) -> str:
     """Safely return path relative to project root (absolute fallback)."""
     root = get_root()
     try:
@@ -93,7 +93,7 @@ def initialize_logger(
         f"{program_name} root directory set to: {get_root()} "
         "(all paths relative to this root)"
     )
-    logger.info(f"Log file created: {_rel(log_path)}")
+    logger.info(f"Log file created: {rel(log_path)}")
 
     flush_early_logs()
     return log_path
@@ -115,9 +115,9 @@ def record_run_metadata(
     def list_dir_structure(base: Path) -> dict:
         files, folders = [], []
         for p in sorted(base.rglob("*")):
-            rel = _rel(p)
+            rel = rel(p)
             (folders if p.is_dir() else files).append(rel)
-        return {"base": _rel(base), "folders": folders, "files": files}
+        return {"base": rel(base), "folders": folders, "files": files}
 
     metadata = {
         "program": {
@@ -129,9 +129,9 @@ def record_run_metadata(
         "runtime_seconds": runtime_seconds,
         "root_directory": str(_root_dir),
         "paths": {
-            "input_dir": _rel(input_dir),
-            "output_dir": _rel(output_dir),
-            "config_file": _rel(config_path),
+            "input_dir": rel(input_dir),
+            "output_dir": rel(output_dir),
+            "config_file": rel(config_path),
         },
         "configuration": config,
         "directory_snapshot": {
@@ -148,7 +148,7 @@ def record_run_metadata(
     with meta_path.open("w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
-    logger.info(f"Run metadata saved at {_rel(meta_path)}")
+    logger.info(f"Run metadata saved at {rel(meta_path)}")
     return meta_path
 
 
