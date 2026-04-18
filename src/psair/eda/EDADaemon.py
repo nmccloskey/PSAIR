@@ -1,19 +1,21 @@
 import os
-import logging
-logger = logging.getLogger("CustomLogger")
 import itertools
 import numpy as np
 import pandas as pd
-from scipy import stats
 from collections import Counter
-import scipy.cluster.hierarchy as sch
+
+from scipy import stats
 from scipy.stats import entropy
+import scipy.cluster.hierarchy as sch
+from scipy.cluster.hierarchy import fcluster
+from scipy.spatial.distance import jensenshannon
+
+from sklearn.impute import SimpleImputer
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.metrics import silhouette_score
-from scipy.cluster.hierarchy import fcluster
 from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
-from scipy.spatial.distance import jensenshannon
+
+from psair.core.logger import logger
 
 
 class EDADaemon:

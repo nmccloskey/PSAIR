@@ -1,7 +1,7 @@
 import os
 import re
-import logging
-logger = logging.getLogger("CustomLogger")
+from psair.core.logger import logger
+
 
 class Table:
     def __init__(self, OM, name, sheet_name, section, subdir, file_name, primary_keys, pivot=None):

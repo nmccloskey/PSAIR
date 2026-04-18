@@ -2,17 +2,21 @@ import os
 import math
 import numpy as np
 import pandas as pd
+
 import seaborn as sns
 import matplotlib.pyplot as plt
-from psair.core.logger import logger
 from spacy import displacy
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
-from psair.nlp import NLPModel
+
 from PyPDF2 import PdfMerger
 import tempfile
 from tempfile import NamedTemporaryFile
+
 from sklearn.preprocessing import StandardScaler
+
+from psair.nlp import NLPModel
+from psair.core.logger import logger
 
 
 def add_grouping_columns(df, combinations):

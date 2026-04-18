@@ -1,8 +1,8 @@
 import re
 import sqlite3
 import pandas as pd
-import logging
-logger = logging.getLogger("CustomLogger")
+
+from psair.core.logger import logger
 
 
 class SQLDaemon:
