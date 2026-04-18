@@ -127,8 +127,3 @@ class NLPModel:
                 self._cmu_dict = cmudict.dict()
 
         return self._cmu_dict
-
-
-NLPmodel = NLPModel
-
-__all__ = ["NLPModel", "NLPmodel"]
