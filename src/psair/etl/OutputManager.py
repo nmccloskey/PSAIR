@@ -2,14 +2,12 @@ import os
 import yaml
 import pandas as pd
 from datetime import datetime
-import logging
-logger = logging.getLogger("CustomLogger")
-from psair.utils.logger import logger, configure_file_handler
-from psair.utils.Tier import TierManager
-from psair.utils.EDADaemon import EDADaemon
-from psair.utils.SQLDaemon import SQLDaemon
-from psair.utils.Table import Table
-from psair.utils.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
+
+from psair.core.logger import logger, configure_file_handler
+from psair.metadata.tiers import TierManager
+from psair.eda.EDADaemon import EDADaemon
+from psair.etl.SQLDaemon import SQLDaemon, Table
+from psair.eda.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
 
 
 class OutputManager:
