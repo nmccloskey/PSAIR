@@ -5,7 +5,7 @@ from tqdm import tqdm
 from pathlib import Path
 
 from psair.core.logger import logger
-from psair.nlp.NLPmodel import NLPmodel
+from psair.nlp import NLPModel
 from psair.etl.OutputManager import OutputManager
 from psair.nlp.data_processing import (
     scrub_raw_text,
@@ -82,7 +82,7 @@ def process_sample_data(PM, sample_data):
 
         results = PM.sections["preprocessing"].init_results_dict()
        
-        NLP = NLPmodel()
+        NLP = NLPModel()
         nlp = NLP.get_nlp()
         doc = nlp(sample_data['text'])
         

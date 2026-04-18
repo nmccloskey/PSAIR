@@ -8,7 +8,7 @@ from psair.utils.logger import logger
 from spacy import displacy
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
-from psair.nlp_utils.NLPmodel import NLPmodel
+from psair.nlp import NLPModel
 from PyPDF2 import PdfMerger
 import tempfile
 from tempfile import NamedTemporaryFile
@@ -249,7 +249,7 @@ def make_spacy_dep_pdfs(doc, doc_id: str, path: str):
         - Uses svglib + reportlab for SVG -> PDF conversion.
         - Merges all sentence PDFs into one per document.
     """
-    NLP = NLPmodel()
+    NLP = NLPModel()
     nlp = NLP.get_nlp()
     os.makedirs(path, exist_ok=True)
 
