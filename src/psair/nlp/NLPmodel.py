@@ -1,12 +1,10 @@
+import sys
 import spacy
 import benepar
-# import warnings
-# import spacy_transformers
-from nltk.corpus import cmudict
-import logging
-logger = logging.getLogger("CustomLogger")
 import subprocess
-import sys
+from nltk.corpus import cmudict
+
+from psair.core.logger import logger
 
 
 class NLPmodel:

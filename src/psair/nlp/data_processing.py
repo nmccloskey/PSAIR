@@ -1,9 +1,8 @@
 import re
 import numpy as np
-import logging
-logger = logging.getLogger("CustomLogger")
-import re
 from pathlib import Path
+
+from psair.core.logger import logger
 
 
 def scrub_raw_text(text: str) -> str:
