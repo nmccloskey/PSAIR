@@ -9,8 +9,11 @@ data handling, exploratory analysis, NLP utilities, and pipeline-oriented
 scaffolding.
 
 The package is currently in alpha. Its public surface is intentionally narrow:
-the documentation and manual tooling is the supported part of the package, while
-the ETL, EDA, NLP, and pipeline modules remain experimental.
+the documentation and manual tooling is the most stable part of the package,
+while the metadata and NLP modules now provide usable early utilities for
+filename-derived metadata, file discovery, text preprocessing, and shared NLP
+resource loading. ETL, EDA, and broader pipeline modules remain more
+experimental.
 
 PSAIR is used as shared scaffolding for downstream research systems such as
 DIAAD, ALASTR, CLATR, and related repositories. Project-specific applications,
@@ -19,9 +22,9 @@ than in PSAIR itself.
 
 ## What is ready now
 
-The currently supported portion of PSAIR is the documentation toolchain. It
-supports repositories that maintain structured Markdown manuals and want a
-lightweight way to inspect, validate, view, and export those manuals.
+The currently supported portion of PSAIR is still centered on the documentation
+toolchain. It supports repositories that maintain structured Markdown manuals
+and want a lightweight way to inspect, validate, view, and export those manuals.
 
 The ready documentation tools include:
 
@@ -37,13 +40,34 @@ These tools are designed for filesystem-native manuals: each section is a
 Markdown file, files are ordered with numeric prefixes, and generated artifacts
 such as outlines and PDFs are derived from the source tree.
 
+PSAIR also now includes alpha-ready metadata and NLP utilities. These are useful
+for downstream projects that are already developing against PSAIR, but they
+should be treated as evolving APIs rather than stable interfaces.
+
+The metadata utilities include:
+
+- configurable tier extraction from filenames
+- literal-value and regex-based tier definitions
+- default filename-stem extraction when no tiers are configured
+- recursive file discovery using tier labels, a filename base, and extension
+- optional duplicate filename handling across search directories
+
+The NLP utilities include:
+
+- text readers for `.txt`, `.docx`, `.cha`, `.csv`, and `.xlsx` inputs
+- raw text scrubbing and cleaned text generation
+- CHAT/CLAN-specific cleaned target and phonological text versions
+- document-level and optional sentence-level preprocessing outputs
+- semantic text based on spaCy lemmas for alphabetic, non-stopword tokens
+- a singleton `NLPModel` helper for loading and reusing spaCy pipelines
+- optional benepar and CMUdict loading when the relevant extras are installed
+
 ## What is still experimental
 
 The broader `psair` namespace includes early modules for:
 
 - ETL
 - exploratory data analysis
-- NLP workflows
 - pipeline management
 
 These modules are included to preserve the emerging package architecture, but
@@ -52,8 +76,8 @@ dependencies, function signatures, and behavior may change across alpha
 releases.
 
 For this release line, downstream projects should depend only on the manual and
-documentation tooling unless they are deliberately developing against the
-experimental areas.
+documentation tooling for stable workflows. The metadata and NLP modules can be
+used by alpha adopters who are comfortable tracking changes.
 
 ## Installation
 
@@ -138,6 +162,7 @@ settle.
 Users should expect:
 
 - documentation tooling to be the supported interface
+- metadata and NLP utilities to be usable but still alpha
 - optional extras to change as the package is refined
 - experimental modules to move or be reorganized
 - dependency ranges to be adjusted between alpha releases

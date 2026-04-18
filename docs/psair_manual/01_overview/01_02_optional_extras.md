@@ -118,12 +118,67 @@ The EDA area is expected to change as PSAIR matures.
 pip install "psair[nlp]"
 ```
 
-The `nlp` extra installs dependencies for the experimental NLP modules,
-including spaCy, benepar, NLTK, document text extraction, and progress reporting.
+The `nlp` extra installs spaCy, which is the core dependency for PSAIR's shared
+NLP model loader. Use this extra when code needs `NLPModel`, tokenization,
+lemmatization, stopword filtering, or other spaCy pipeline behavior.
 
-Some NLP tools may also require model downloads or corpus downloads outside the
-Python package installation. Treat this extra as a development target rather
-than a stable user-facing interface.
+spaCy language models are not bundled inside the Python package. By default,
+`NLPModel` can attempt to download a requested spaCy model when it is missing.
+For controlled environments, install the model ahead of time or call
+`get_nlp(..., auto_download_model=False)` so missing models fail explicitly.
+
+## NLP processing extra
+
+```bash
+pip install "psair[nlp-process]"
+```
+
+The `nlp-process` extra installs dependencies used by the preprocessing
+workflow: NumPy, pandas, docx2txt, and tqdm. Use it when working with PSAIR's
+file readers and preprocessing pipeline for `.txt`, `.docx`, `.cha`, `.csv`, or
+`.xlsx` inputs.
+
+This extra does not install spaCy by itself. Combine it with `nlp` when the
+workflow needs both file processing and spaCy analysis:
+
+```bash
+pip install "psair[nlp,nlp-process]"
+```
+
+## NLP phonology extra
+
+```bash
+pip install "psair[nlp-phon]"
+```
+
+The `nlp-phon` extra installs NLTK for phonology-oriented resources such as
+CMUdict. Use it when code calls `NLPModel.get_cmu_dict()`.
+
+The CMUdict corpus is downloaded through NLTK data, not bundled in the PSAIR
+wheel. `NLPModel` attempts the NLTK download if the corpus is missing.
+
+## NLP parsing extra
+
+```bash
+pip install "psair[nlp-parse]"
+```
+
+The `nlp-parse` extra installs benepar for constituency parsing support. Use it
+when loading a spaCy pipeline with `require_benepar=True`.
+
+The benepar model is also an external resource. PSAIR attempts to download
+`benepar_en3` when benepar support is requested, but projects with locked-down
+environments should provision that model separately.
+
+## NLP full extra
+
+```bash
+pip install "psair[nlp-full]"
+```
+
+The `nlp-full` extra combines the active NLP dependency groups: spaCy, benepar,
+NLTK, NumPy, pandas, docx2txt, and tqdm. It is the simplest install target for
+contributors working across the NLP model and preprocessing modules.
 
 ## Web extra
 

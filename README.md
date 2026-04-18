@@ -7,12 +7,12 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://psair-dev.streamlit.app/)
 
 **Status:** Alpha, active development  
-**Current supported component:** documentation/manual tooling  
+**Current supported components:** documentation/manual tooling, plus alpha metadata and NLP utilities  
 **Broader scope:** experimental infrastructure for ETL, EDA, NLP, and pipeline development
 
 PSAIR is a backend utility package for research software repositories. Its long-term goal is to provide reusable scaffolding for documentation workflows, data handling, exploratory analysis, and pipeline-oriented tooling across projects such as DIAAD, ALASTR, CLATR, and related systems.
 
-At present, **only the documentation toolchain is considered ready for general use**. Other package areas are included as part of the package's evolving architecture, but they should currently be treated as **experimental, incomplete, and subject to substantial change**.
+At present, **the documentation toolchain is the most stable component and is ready for general use**. PSAIR also includes early, usable metadata and NLP utilities for filename metadata extraction, file discovery, text preprocessing, and shared spaCy model loading. Other package areas are included as part of the package's evolving architecture, but they should currently be treated as **experimental, incomplete, and subject to substantial change**.
 
 ## What is ready now
 
@@ -26,13 +26,17 @@ The currently supported portion of PSAIR focuses on repository documentation wor
 
 These tools are intended to support repositories that maintain structured Markdown manuals and want lightweight support for viewing and export.
 
+Also available in alpha form:
+
+- metadata utilities for filename tier extraction and matching related files
+- NLP utilities for text preprocessing and shared spaCy model/resource loading
+
 ## What is not ready yet
 
 The broader `psair` namespace also contains modules related to:
 
 - ETL
 - exploratory data analysis
-- NLP utilities
 - pipeline scaffolding
 
 These components are being actively developed and reorganized. They are not yet stable enough to treat as public APIs.
@@ -108,7 +112,7 @@ pytest tests/test_manual/test_pdf.py
 
 ## Stability note
 
-PSAIR is currently in alpha. Module structure, APIs, and dependency groupings may change significantly across early releases. Until the package reaches a more stable milestone, only the documentation tooling should be treated as a supported interface.
+PSAIR is currently in alpha. Module structure, APIs, and dependency groupings may change significantly across early releases. Until the package reaches a more stable milestone, the documentation tooling should be treated as the primary supported interface; metadata and NLP utilities are available for alpha adopters but may still change.
 
 ## Intended use
 
