@@ -10,6 +10,8 @@ charset-normalizer==3.4.7
     # via reportlab
 cssselect2==0.9.0
     # via svglib
+docx2txt==0.9
+    # via psair
 et-xmlfile==2.0.0
     # via openpyxl
 freetype-py==2.5.1
