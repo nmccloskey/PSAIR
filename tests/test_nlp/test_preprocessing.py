@@ -196,7 +196,7 @@ def test_prep_samples_handles_unsupported_and_text_files(
             assert file_path == text_path
             return {"site": "AC"}
 
-    om = types.SimpleNamespace(tm=FakeMetadataManager())
+    om = types.SimpleNamespace(mm=FakeMetadataManager())
     text_path = tmp_path / "sample_AC.txt"
     monkeypatch.setattr(preprocessing_module, "read_text_file", lambda path: "Text body")
 
@@ -311,7 +311,7 @@ def test_read_spreadsheet_builds_samples_and_registers_metadata_fields(
         def make_metadata_field(self, name: str) -> FakeMetadataField:
             return FakeMetadataField(name)
 
-    om = types.SimpleNamespace(tm=FakeMetadataManager())
+    om = types.SimpleNamespace(mm=FakeMetadataManager())
 
     samples = preprocessing_module.read_spreadsheet(
         tmp_path / "samples.csv",
