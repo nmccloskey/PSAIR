@@ -115,9 +115,9 @@ def record_run_metadata(
     def list_dir_structure(base: Path) -> dict:
         files, folders = [], []
         for p in sorted(base.rglob("*")):
-            rel = rel(p)
+            rel = get_rel_path(p)
             (folders if p.is_dir() else files).append(rel)
-        return {"base": rel(base), "folders": folders, "files": files}
+        return {"base": get_rel_path(base), "folders": folders, "files": files}
 
     metadata = {
         "program": {
