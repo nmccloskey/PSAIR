@@ -191,11 +191,12 @@ def test_prep_samples_handles_unsupported_and_text_files(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    class FakeTierManager:
-        def match_tiers(self, file_name: str) -> dict[str, str]:
+    class FakeMetadataManager:
+        def match_metadata(self, file_path: str | Path) -> dict[str, str]:
+            assert file_path == text_path
             return {"site": "AC"}
 
-    om = types.SimpleNamespace(tm=FakeTierManager())
+    om = types.SimpleNamespace(mm=FakeMetadataManager())
     text_path = tmp_path / "sample_AC.txt"
     monkeypatch.setattr(preprocessing_module, "read_text_file", lambda path: "Text body")
 
@@ -285,7 +286,7 @@ class FakeDataFrame:
         return [dict(row) for row in self.rows]
 
 
-def test_read_spreadsheet_builds_samples_and_registers_metadata_tiers(
+def test_read_spreadsheet_builds_samples_and_registers_metadata_fields(
     preprocessing_module,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -298,19 +299,19 @@ def test_read_spreadsheet_builds_samples_and_registers_metadata_tiers(
     )
     monkeypatch.setattr(preprocessing_module.pd, "read_csv", lambda path: df)
 
-    class FakeTier:
+    class FakeMetadataField:
         def __init__(self, name: str) -> None:
             self.name = name
-            self.partition = "metadata"
 
-    class FakeTierManager:
+    class FakeMetadataManager:
         def __init__(self) -> None:
-            self.tiers: dict[str, FakeTier] = {}
+            self.metadata_fields: dict[str, FakeMetadataField] = {}
+            self.metadata_fields = self.metadata_fields
 
-        def make_tier(self, name: str) -> FakeTier:
-            return FakeTier(name)
+        def make_metadata_field(self, name: str) -> FakeMetadataField:
+            return FakeMetadataField(name)
 
-    om = types.SimpleNamespace(tm=FakeTierManager())
+    om = types.SimpleNamespace(mm=FakeMetadataManager())
 
     samples = preprocessing_module.read_spreadsheet(
         tmp_path / "samples.csv",
@@ -328,4 +329,4 @@ def test_read_spreadsheet_builds_samples_and_registers_metadata_tiers(
             "doc_id": 10,
         }
     ]
-    assert set(om.tm.tiers) == {"site", "visit"}
+    assert set(om.mm.metadata_fields) == {"site", "visit"}

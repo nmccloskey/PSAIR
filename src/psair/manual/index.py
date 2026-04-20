@@ -77,7 +77,7 @@ def build_manual_index(manual_dir: str | Path) -> Tuple[TreeNode, Dict[str, Manu
     return tree, flat
 
 
-def render_generated_tree_text(tree: TreeNode) -> str:
+def render_generated_tree_text(tree: TreeNode, *, show_titles: bool = False) -> str:
     lines: List[str] = ["Manual Map (Tree)"]
 
     def walk(node: TreeNode, prefix: str = "") -> None:
@@ -92,7 +92,10 @@ def render_generated_tree_text(tree: TreeNode) -> str:
                 next_prefix = prefix + ("    " if last else "│   ")
                 walk(child, next_prefix)
             else:
-                lines.append(f"{prefix}{branch}{name}")
+                label = name
+                if show_titles and child.title:
+                    label = f"{name} — {child.title}"
+                lines.append(f"{prefix}{branch}{label}")
 
     walk(tree)
     return "\n".join(lines)

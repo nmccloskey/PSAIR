@@ -3,11 +3,18 @@ from __future__ import annotations
 import shutil
 import subprocess
 import tempfile
+import tomllib
+import re
+from importlib.metadata import PackageNotFoundError, version as package_version
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 
 MD_EXTS = {".md", ".markdown"}
+_PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_-]*)\}")
+_LATEX_ARG_PLACEHOLDER_RE = re.compile(
+    r"(\\[A-Za-z@]+(?:\[[^\]]*\])*)\{([A-Za-z_][A-Za-z0-9_-]*)\}"
+)
 
 
 def normalize_exts(exts: set[str] | None) -> set[str]:
@@ -45,6 +52,181 @@ def resolve_executable(name: str) -> str:
             ) from exc
 
     raise FileNotFoundError(f"Required executable not found on PATH: {name}")
+
+
+def resolve_project_version(start: Path | None = None) -> str:
+    """
+    Resolve the project version, preferring the nearest pyproject.toml.
+
+    This mirrors the installed-package lookup used by psair.__version__, but
+    checks source-tree metadata first so local manual builds stay in sync with
+    the repository being compiled.
+    """
+    for pyproject in _candidate_pyprojects(start):
+        try:
+            data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        project = data.get("project")
+        if isinstance(project, dict) and isinstance(project.get("version"), str):
+            return project["version"].strip()
+
+    try:
+        return package_version("psair")
+    except PackageNotFoundError:  # pragma: no cover
+        return "0.0.0"
+
+
+def render_pandoc_metadata_text(
+    yaml_path: Path,
+    *,
+    project_root: Path | None = None,
+) -> str:
+    """
+    Render lightweight placeholders in a Pandoc metadata YAML file.
+
+    Supported placeholders are based on top-level YAML metadata plus
+    package-version helpers:
+
+    - {package_version}: version from pyproject.toml, falling back to installed psair
+    - {version}: top-level YAML version after placeholder expansion, or package version
+    - {title}, {date}, etc.: top-level scalar YAML fields
+
+    LaTeX command arguments like ``\\fancyhead[R]{date}`` keep their surrounding
+    braces and become ``\\fancyhead[R]{Version 0.0.1}``.
+    """
+    raw = yaml_path.read_text(encoding="utf-8")
+    metadata = _load_yaml_mapping(raw)
+    package_ver = resolve_project_version(project_root or yaml_path)
+    context = _build_metadata_context(metadata, package_version=package_ver)
+    return _replace_metadata_placeholders(raw, context)
+
+
+def prepare_pandoc_metadata_file(yaml_path: Path | None) -> tuple[Path | None, Path | None]:
+    """
+    Return the metadata file Pandoc should use and any temporary file to delete.
+    """
+    if yaml_path is None:
+        return None, None
+
+    rendered = render_pandoc_metadata_text(yaml_path)
+    original = yaml_path.read_text(encoding="utf-8")
+    if rendered == original:
+        return yaml_path, None
+
+    temp = tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".yaml",
+        prefix="psair_pandoc_metadata_",
+        delete=False,
+        encoding="utf-8",
+        newline="\n",
+    )
+    try:
+        temp.write(rendered)
+        temp.flush()
+    finally:
+        temp.close()
+
+    rendered_path = Path(temp.name)
+    return rendered_path, rendered_path
+
+
+def _candidate_pyprojects(start: Path | None) -> list[Path]:
+    starts = []
+    if start is not None:
+        starts.append(Path(start).resolve())
+    starts.extend([Path(__file__).resolve(), Path.cwd().resolve()])
+
+    seen: set[Path] = set()
+    candidates: list[Path] = []
+    for item in starts:
+        current = item if item.is_dir() else item.parent
+        for parent in (current, *current.parents):
+            candidate = parent / "pyproject.toml"
+            if candidate in seen:
+                continue
+            seen.add(candidate)
+            if candidate.exists():
+                candidates.append(candidate)
+    return candidates
+
+
+def _load_yaml_mapping(raw: str) -> dict[str, Any]:
+    try:
+        import yaml
+
+        loaded = yaml.safe_load(raw)
+    except Exception:
+        return _parse_simple_yaml_scalars(raw)
+
+    return loaded if isinstance(loaded, dict) else {}
+
+
+def _parse_simple_yaml_scalars(raw: str) -> dict[str, str]:
+    metadata: dict[str, str] = {}
+    scalar_re = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*?)\s*$")
+
+    for line in raw.splitlines():
+        match = scalar_re.match(line)
+        if not match:
+            continue
+
+        value = match.group(2).strip()
+        if not value or value.startswith(("[", "{")):
+            continue
+        if value[0:1] in {"'", '"'} and value[-1:] == value[0]:
+            value = value[1:-1]
+        metadata[match.group(1)] = value
+
+    return metadata
+
+
+def _build_metadata_context(
+    metadata: dict[str, Any],
+    *,
+    package_version: str,
+) -> dict[str, str]:
+    context = {
+        "package_version": package_version,
+    }
+
+    raw_version = metadata.get("version")
+    if isinstance(raw_version, str) and raw_version.strip().lower() not in {"", "auto"}:
+        context["version"] = _replace_metadata_placeholders(raw_version, context)
+    else:
+        context["version"] = package_version
+
+    for _ in range(3):
+        changed = False
+        for key, value in metadata.items():
+            if not isinstance(key, str) or not isinstance(value, str):
+                continue
+            rendered = _replace_metadata_placeholders(value, context)
+            if context.get(key) != rendered:
+                context[key] = rendered
+                changed = True
+        if not changed:
+            break
+
+    context.setdefault("date", f"Version {context['version']}")
+    return context
+
+
+def _replace_metadata_placeholders(text: str, context: dict[str, str]) -> str:
+    def latex_repl(match: re.Match[str]) -> str:
+        key = match.group(2)
+        if key not in context:
+            return match.group(0)
+        return f"{match.group(1)}{{{context[key]}}}"
+
+    def plain_repl(match: re.Match[str]) -> str:
+        key = match.group(1)
+        return context.get(key, match.group(0))
+
+    text = _LATEX_ARG_PLACEHOLDER_RE.sub(latex_repl, text)
+    return _PLACEHOLDER_RE.sub(plain_repl, text)
 
 
 def iter_markdown_files(
@@ -207,17 +389,22 @@ def run_pandoc(
         pdf_engine,
     ]
 
-    if yaml_path is not None:
-        cmd.extend(["--metadata-file", str(yaml_path)])
+    metadata_path, temp_metadata_path = prepare_pandoc_metadata_file(yaml_path)
+    if metadata_path is not None:
+        cmd.extend(["--metadata-file", str(metadata_path)])
 
     if extra_args:
         cmd.extend(extra_args)
 
-    proc = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=False,
-    )
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=False,
+        )
+    finally:
+        if temp_metadata_path is not None and temp_metadata_path.exists():
+            temp_metadata_path.unlink(missing_ok=True)
 
     stdout = proc.stdout.decode("utf-8", errors="replace")
     stderr = proc.stderr.decode("utf-8", errors="replace")

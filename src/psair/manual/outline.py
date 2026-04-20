@@ -174,7 +174,7 @@ def render_tree(
     links
         If True, render Markdown links for files.
     show_titles
-        If True, append extracted titles to file labels when links=True.
+        If True, append extracted titles to file labels.
     indent_mid / indent_last
         Indentation fragments used to build child prefixes.
 
@@ -210,13 +210,13 @@ def render_tree(
                 )
             )
         else:
+            label = key
+            if show_titles and node.title:
+                label = f"{key} — {node.title}"
             if not links:
-                lines.append(f"{prefix}{branch}{key}")
+                lines.append(f"{prefix}{branch}{label}")
             else:
                 rel_link = (base_rel / key).as_posix()
-                label = key
-                if show_titles and node.title:
-                    label = f"{key} — {node.title}"
                 lines.append(f"{prefix}{branch}[{label}]({rel_link})")
 
     return lines

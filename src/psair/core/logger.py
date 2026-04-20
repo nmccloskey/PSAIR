@@ -59,6 +59,41 @@ def flush_early_logs():
     _early_logs.clear()
 
 
+def configure_file_handler(
+    output_label: str = "",
+    log_dir: Path | str | None = None,
+) -> Path:
+    """
+    Attach a basic file handler for legacy callers that do not use initialize_logger.
+
+    OutputManager historically called this during configuration loading, before it
+    had a run-specific output directory available. Newer code should prefer
+    initialize_logger when it can provide explicit run paths.
+    """
+    root = get_root()
+    target_dir = Path(log_dir).resolve() if log_dir is not None else root / "logs"
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    safe_label = "".join(
+        char if char.isalnum() or char in {"_", "-"} else "_"
+        for char in output_label.strip().lower()
+    ).strip("_")
+    filename = f"{safe_label or 'run'}_{datetime.now().strftime('%y%m%d_%H%M')}.log"
+    log_path = (target_dir / filename).resolve()
+
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler) and Path(handler.baseFilename) == log_path:
+            return log_path
+
+    file_handler = logging.FileHandler(log_path, encoding="utf-8")
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    logger.info(f"Log file created: {get_rel_path(log_path)}")
+    flush_early_logs()
+    return log_path
+
+
 # ---------------------------------------------------------------------
 # Initialization and termination
 # ---------------------------------------------------------------------
@@ -115,9 +150,9 @@ def record_run_metadata(
     def list_dir_structure(base: Path) -> dict:
         files, folders = [], []
         for p in sorted(base.rglob("*")):
-            rel = rel(p)
+            rel = get_rel_path(p)
             (folders if p.is_dir() else files).append(rel)
-        return {"base": rel(base), "folders": folders, "files": files}
+        return {"base": get_rel_path(base), "folders": folders, "files": files}
 
     metadata = {
         "program": {

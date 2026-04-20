@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 from psair.core.logger import logger, configure_file_handler
-from psair.metadata.tiers import TierManager
+from psair.metadata.metadata_fields import MetadataManager
 from psair.eda.EDADaemon import EDADaemon
 from psair.etl.SQLDaemon import SQLDaemon, Table
 from psair.eda.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
@@ -29,7 +29,7 @@ class OutputManager:
 
             cls._instance._init_db()
             cls._instance.db = SQLDaemon(cls._instance)
-            cls._instance.tm = TierManager(cls._instance)
+            cls._instance.mm = MetadataManager(cls._instance)
             cls._instance.eda = EDADaemon(cls._instance)
 
             logger.info("OutputManager initialized successfully.")
@@ -128,9 +128,6 @@ class OutputManager:
         """Delegates database retrieval to SQLDaemon."""
         df = self.db.access_data(table_name, columns, filters)
         return df
-    
-    def get_partition_tiers(self):
-        return self.tm.get_partition_tiers()
 
     def sanitize_column_name(self, col_name):
         return self.db.sanitize_column_name(col_name)
@@ -284,8 +281,7 @@ class OutputManager:
                 grouping_cols = self.aggregation_cols
                 merged_df = self.get_data_with_groupings(
                     fact_table=grouping_table_name, dim_table=table_name,
-                    cluster_table=cluster_table_name, grouping_cols=grouping_cols)
-                # group_by = self.get_partition_tiers()                
+                    cluster_table=cluster_table_name, grouping_cols=grouping_cols)            
                 self.run_aggregation(merged_df, grouping_cols, table_name, section)
             
             if self.compare_groups:

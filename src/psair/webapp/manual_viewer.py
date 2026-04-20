@@ -515,7 +515,7 @@ def render_manual_ui(
         )
 
         with st.expander("Manual Map (Tree)", expanded=False):
-            st.code(render_generated_tree_text(tree), language="text")
+            st.code(render_generated_tree_text(tree, show_titles=True), language="text")
 
         _render_manual_search(ns=ns, flat=flat, state_keys=state_keys)
         _render_manual_sections(ns=ns, tree=tree, flat=flat, state_keys=state_keys)

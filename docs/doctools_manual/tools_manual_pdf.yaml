@@ -5,7 +5,8 @@
 title: "PSAIR Documentation Tools Instruction Manual"
 subtitle: "Operating PSAIR Modules for Repository Manual Compilation"
 author: "Nick McCloskey"
-date: "Version 0.0.2a1"
+version: "{package_version}"
+date: "Version {version}"
 
 geometry: margin=3cm
 fontsize: 11pt
@@ -27,8 +28,8 @@ header-includes:
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
   - \fancyfoot[C]{\thepage}
-  - \fancyhead[L]{PSAIR Documentation Tools Manual}
-  - \fancyhead[R]{Version 0.0.2a1}
+  - \fancyhead[L]{title}
+  - \fancyhead[R]{date}
   - \usepackage{fvextra}
   - \fvset{breaklines=true,breakanywhere=true}
 

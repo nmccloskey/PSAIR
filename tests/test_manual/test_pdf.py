@@ -12,6 +12,8 @@ from psair.manual.pdf import (
     build_manual_pdf,
     build_pandoc_extra_args,
     iter_markdown_files,
+    render_pandoc_metadata_text,
+    resolve_project_version,
     normalize_exts,
     resolve_executable,
     run_pandoc,
@@ -99,6 +101,43 @@ def test_resolve_executable_uses_path_or_raises_helpful_error(monkeypatch: pytes
     monkeypatch.setattr(pdf.shutil, "which", lambda name: None)
     with pytest.raises(FileNotFoundError, match="Required executable"):
         resolve_executable("definitely-not-pandoc")
+
+
+def test_resolve_project_version_prefers_nearest_pyproject(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    write(project / "pyproject.toml", '[project]\nname = "demo"\nversion = "1.2.3"\n')
+    nested = project / "docs" / "manual"
+    nested.mkdir(parents=True)
+
+    assert resolve_project_version(nested) == "1.2.3"
+
+
+def test_render_pandoc_metadata_text_expands_ssot_placeholders(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    write(project / "pyproject.toml", '[project]\nname = "demo"\nversion = "1.2.3"\n')
+    yaml_path = write(
+        project / "docs" / "manual_pdf.yaml",
+        "\n".join(
+            [
+                'title: "Demo Manual"',
+                'version: "{package_version}"',
+                'date: "Version {version}"',
+                "header-includes:",
+                r"  - \usepackage{fancyhdr}",
+                r"  - \fancyhead[L]{title}",
+                r"  - \fancyhead[R]{date}",
+                "",
+            ]
+        ),
+    )
+
+    rendered = render_pandoc_metadata_text(yaml_path)
+
+    assert 'version: "1.2.3"' in rendered
+    assert 'date: "Version 1.2.3"' in rendered
+    assert r"\fancyhead[L]{Demo Manual}" in rendered
+    assert r"\fancyhead[R]{Version 1.2.3}" in rendered
+    assert r"\usepackage{fancyhdr}" in rendered
 
 
 def test_run_pandoc_builds_command_and_decodes_failure(

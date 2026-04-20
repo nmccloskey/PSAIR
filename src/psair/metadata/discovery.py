@@ -4,27 +4,27 @@ from psair.core.logger import logger, get_rel_path
 
 
 def find_matching_files(
-    match_tiers=None,
+    match_metadata_fields=None,
     directories=None,
     search_base="",
     search_ext=".xlsx",
     deduplicate=True,
 ):
     """
-    Recursively find files matching tier labels and a base pattern.
+    Recursively find files matching metadata labels and a base pattern.
 
     Behavior
     --------
     • Searches all provided directories for filenames containing both
-      `search_base` and every label in `match_tiers` (case-sensitive).
+      `search_base` and every label in `match_metadata_fields` (case-sensitive).
     • Returns a list[Path] of matches (empty if none found).
     • Optionally deduplicates identical filenames across directories,
       logging which duplicates were removed.
 
     Parameters
     ----------
-    match_tiers : list[str] | None
-        Tier labels (e.g., ["AC", "PreTx"]). None/empty ignored.
+    match_metadata_fields : list[str] | None
+        Metadata labels (e.g., ["AC", "PreTx"]). None/empty ignored.
     directories : Path | str | list[Path | str] | None
         One or more directories to search (default: CWD).
     search_base : str
@@ -39,7 +39,7 @@ def find_matching_files(
     list[Path]
         Matching file paths (may be empty).
     """
-    match_tiers = [str(mt) for mt in (match_tiers or []) if mt]
+    match_metadata_fields = [str(mt) for mt in (match_metadata_fields or []) if mt]
     if directories is None:
         directories = [Path.cwd()]
     elif isinstance(directories, (str, Path)):
@@ -54,13 +54,15 @@ def find_matching_files(
                 continue
 
             for f in d.rglob(f"*{search_base}*{search_ext}"):
-                if all(mt in f.name for mt in match_tiers):
+                if all(mt in f.name for mt in match_metadata_fields):
                     all_matches.append(f)
         except Exception as e:
             logger.error(f"Error searching in {get_rel_path(d)}: {e}")
 
     if not all_matches:
-        logger.warning(f"No matches found for base '{search_base}' with tiers {match_tiers}.")
+        logger.warning(
+            f"No matches found for base '{search_base}' with metadata labels {match_metadata_fields}."
+        )
         return []
 
     if deduplicate:
@@ -90,7 +92,7 @@ def find_matching_files(
         logger.info(f"Matched file for '{search_base}': {get_rel_path(unique_matches[0])}")
     else:
         logger.info(
-            f"Multiple ({len(unique_matches)}) files matched '{search_base}' and {match_tiers}."
+            f"Multiple ({len(unique_matches)}) files matched '{search_base}' and {match_metadata_fields}."
         )
         for f in unique_matches:
             logger.debug(f"  - {get_rel_path(f)}")

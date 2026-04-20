@@ -75,11 +75,13 @@ def test_build_tree_and_renderers_use_entries() -> None:
 
     tree = build_tree(entries)
     tree_lines = render_tree(tree, links=True)
+    plain_tree_lines = render_tree(tree)
     grouped = render_grouped_outline(entries)
 
     assert "01_intro.md" in tree
     assert "section" in tree
     assert any("[01_intro.md" in line and "Intro" in line for line in tree_lines)
+    assert any("01_intro.md — Intro" in line for line in plain_tree_lines)
     assert grouped[0] == "### Manual root"
     assert any("section/" in line for line in grouped)
 

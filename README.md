@@ -28,7 +28,7 @@ These tools are intended to support repositories that maintain structured Markdo
 
 Also available in alpha form:
 
-- metadata utilities for filename tier extraction and matching related files
+- metadata utilities for relative-path metadata field extraction and matching related files
 - NLP utilities for text preprocessing and shared spaCy model/resource loading
 
 ## What is not ready yet

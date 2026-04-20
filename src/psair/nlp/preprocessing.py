@@ -149,7 +149,7 @@ def read_spreadsheet(file_path, file_name, doc_id, OM):
         file_path (str): Path to the spreadsheet file.
         file_name (str): Name of the file (used in `doc_label`).
         doc_id (int): Starting document ID.
-        OM (OutputManager): OutputManager instance handling tier creation.
+        OM (OutputManager): OutputManager instance handling metadata field creation.
 
     Returns:
         list: List of dictionaries, each representing a processed row.
@@ -163,9 +163,10 @@ def read_spreadsheet(file_path, file_name, doc_id, OM):
         raise ValueError(f"{file_name} must contain 'text' column.")
     
     other_columns = [col for col in df.columns if col != "text"]
-    new_tiers = [OM.tm.make_tier(col) for col in other_columns]
-    OM.tm.tiers.update({tier.name: tier for tier in new_tiers if tier})
-    logger.info(f"TierManager's tiers: {[(t.name, t.partition) for t in OM.tm.tiers.values()]}")
+    new_fields = [OM.mm.make_metadata_field(col) for col in other_columns]
+    OM.mm.metadata_fields.update({field.name: field for field in new_fields if field})
+    OM.mm.metadata_fields = OM.mm.metadata_fields
+    logger.info(f"MetadataManager's metadata fields: {list(OM.mm.metadata_fields)}")
 
     df.insert(0, "doc_label", file_name + "|" + df[other_columns].astype(str).agg("|".join, axis=1) + "|" + df.index.astype(str))
     df.insert(0, "doc_id", range(doc_id, doc_id + len(df)))
@@ -199,7 +200,7 @@ def prep_samples(file_name, file_path, doc_id, OM):
                 "doc_id": doc_id,
                 "doc_label": file_name,
                 "text": text_content,
-                **OM.tm.match_tiers(file_name)
+                **OM.mm.match_metadata(file_path)
             }
         samples = [sample_data]
     
