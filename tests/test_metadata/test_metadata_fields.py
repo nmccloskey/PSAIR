@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from psair.metadata.tiers import MetadataManager, TierManager
+from psair.metadata.metadata_fields import MetadataManager, TierManager
 
 
 def test_default_metadata_field_matches_cha_filename_stem() -> None:

@@ -163,10 +163,10 @@ def read_spreadsheet(file_path, file_name, doc_id, OM):
         raise ValueError(f"{file_name} must contain 'text' column.")
     
     other_columns = [col for col in df.columns if col != "text"]
-    new_fields = [OM.tm.make_metadata_field(col) for col in other_columns]
-    OM.tm.metadata_fields.update({field.name: field for field in new_fields if field})
-    OM.tm.tiers = OM.tm.metadata_fields
-    logger.info(f"MetadataManager's metadata fields: {list(OM.tm.metadata_fields)}")
+    new_fields = [OM.mm.make_metadata_field(col) for col in other_columns]
+    OM.mm.metadata_fields.update({field.name: field for field in new_fields if field})
+    OM.mm.metadata_fields = OM.mm.metadata_fields
+    logger.info(f"MetadataManager's metadata fields: {list(OM.mm.metadata_fields)}")
 
     df.insert(0, "doc_label", file_name + "|" + df[other_columns].astype(str).agg("|".join, axis=1) + "|" + df.index.astype(str))
     df.insert(0, "doc_id", range(doc_id, doc_id + len(df)))
@@ -200,7 +200,7 @@ def prep_samples(file_name, file_path, doc_id, OM):
                 "doc_id": doc_id,
                 "doc_label": file_name,
                 "text": text_content,
-                **OM.tm.match_metadata(file_path)
+                **OM.mm.match_metadata(file_path)
             }
         samples = [sample_data]
     

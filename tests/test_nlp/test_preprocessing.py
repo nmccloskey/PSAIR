@@ -306,7 +306,7 @@ def test_read_spreadsheet_builds_samples_and_registers_metadata_fields(
     class FakeMetadataManager:
         def __init__(self) -> None:
             self.metadata_fields: dict[str, FakeMetadataField] = {}
-            self.tiers = self.metadata_fields
+            self.metadata_fields = self.metadata_fields
 
         def make_metadata_field(self, name: str) -> FakeMetadataField:
             return FakeMetadataField(name)
@@ -329,4 +329,4 @@ def test_read_spreadsheet_builds_samples_and_registers_metadata_fields(
             "doc_id": 10,
         }
     ]
-    assert set(om.tm.tiers) == {"site", "visit"}
+    assert set(om.mm.metadata_fields) == {"site", "visit"}

@@ -17,7 +17,7 @@ contains `AC`, `Pre`, and a known base label.
 from psair.metadata.discovery import find_matching_files
 
 find_matching_files(
-    match_tiers=None,
+    match_metadata_fields=None,
     directories=None,
     search_base="",
     search_ext=".xlsx",
@@ -25,7 +25,7 @@ find_matching_files(
 )
 ```
 
-The parameter name `match_tiers` remains for compatibility with existing code.
+The parameter name `match_metadata_fields` remains for compatibility with existing code.
 Conceptually, it is a list of metadata labels to match.
 
 ## Matching Rules
@@ -35,7 +35,7 @@ all of the following are true:
 
 - the filename contains `search_base`
 - the filename ends with `search_ext`
-- every non-empty value in `match_tiers` appears somewhere in the filename
+- every non-empty value in `match_metadata_fields` appears somewhere in the filename
 
 Matching is case-sensitive because it uses ordinary Python substring checks.
 
@@ -43,7 +43,7 @@ Example:
 
 ```python
 matches = find_matching_files(
-    match_tiers=["AC", "Pre"],
+    match_metadata_fields=["AC", "Pre"],
     directories=["data/forms", "data/exports"],
     search_base="scores",
     search_ext=".xlsx",
@@ -67,19 +67,19 @@ searched.
 
 ## Metadata Labels
 
-`match_tiers` is optional. When it is `None` or empty, the utility searches only
+`match_metadata_fields` is optional. When it is `None` or empty, the utility searches only
 by `search_base` and `search_ext`.
 
 Values are converted to strings and empty values are ignored:
 
 ```python
-find_matching_files(match_tiers=["AC", None, "", "Pre"])
+find_matching_files(match_metadata_fields=["AC", None, "", "Pre"])
 ```
 
 is treated like:
 
 ```python
-find_matching_files(match_tiers=["AC", "Pre"])
+find_matching_files(match_metadata_fields=["AC", "Pre"])
 ```
 
 ## Deduplication
@@ -97,7 +97,7 @@ repeat:
 
 ```python
 matches = find_matching_files(
-    match_tiers=["AC", "Pre"],
+    match_metadata_fields=["AC", "Pre"],
     directories=["batch_a", "batch_b"],
     search_base="scores",
     deduplicate=False,
@@ -115,11 +115,11 @@ multi-match result, with paths emitted at debug level.
 ## Example With Metadata Extraction
 
 ```python
-from psair.metadata.tiers import MetadataManager
+from psair.metadata.metadata_fields import MetadataManager
 from psair.metadata.discovery import find_matching_files
 
 config = {
-    "tiers": {
+    "metadata_fields": {
         "site": ["AC", "BU", "TU"],
         "test": ["Pre", "Post"],
     }
@@ -129,7 +129,7 @@ manager = MetadataManager(config)
 labels = manager.match_metadata("AC001_Pre_story.cha", return_none=True)
 
 matches = find_matching_files(
-    match_tiers=[labels["site"], labels["test"]],
+    match_metadata_fields=[labels["site"], labels["test"]],
     directories="data/metadata",
     search_base="scores",
     search_ext=".xlsx",
