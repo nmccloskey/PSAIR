@@ -300,14 +300,14 @@ class EDADaemon:
 
     def get_grouping_combos(self, group_by, gtype="agg"):
         """
-        Generates combinations of group_by tiers for aggregation or comparison.
+        Generates combinations of group_by metadata fields for aggregation or comparison.
 
         Args:
-            group_by (list[str]): Base tier names (e.g., ["test", "narrative"])
+            group_by (list[str]): Base metadata field names (e.g., ["test", "narrative"])
             gtype (str): "agg" or "gcomp"
 
         Returns:
-            list[tuple]: List of tier combinations as tuples
+            list[tuple]: List of metadata field combinations as tuples
         """
         combinations = []
 

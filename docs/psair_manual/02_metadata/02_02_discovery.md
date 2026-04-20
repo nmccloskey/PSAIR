@@ -4,14 +4,14 @@
 
 `psair.metadata.discovery.find_matching_files()` searches one or more
 directories for files whose names match a base pattern, extension, and optional
-tier labels. It is a lightweight helper for locating files that correspond to
-metadata extracted from another source.
+metadata labels. It is a lightweight helper for locating files that correspond
+to metadata extracted from another source.
 
-For example, after extracting tiers from `AC001_Pre_story.cha`, a downstream
-workflow might need to find a spreadsheet whose filename also contains `AC`,
-`Pre`, and a known base label.
+For example, after extracting metadata fields from `AC001_Pre_story.cha`, a
+downstream workflow might need to find a spreadsheet whose filename also
+contains `AC`, `Pre`, and a known base label.
 
-## Function signature
+## Function Signature
 
 ```python
 from psair.metadata.discovery import find_matching_files
@@ -25,7 +25,10 @@ find_matching_files(
 )
 ```
 
-## Matching rules
+The parameter name `match_tiers` remains for compatibility with existing code.
+Conceptually, it is a list of metadata labels to match.
+
+## Matching Rules
 
 The utility searches recursively with `Path.rglob()`. A file is included when
 all of the following are true:
@@ -62,7 +65,7 @@ Missing directories are skipped and logged as warnings. Search errors inside an
 individual directory are caught and logged so another directory can still be
 searched.
 
-## Tier labels
+## Metadata Labels
 
 `match_tiers` is optional. When it is `None` or empty, the utility searches only
 by `search_base` and `search_ext`.
@@ -101,7 +104,7 @@ matches = find_matching_files(
 )
 ```
 
-## Return value
+## Return Value
 
 The function always returns a list of `Path` objects. It returns an empty list
 when no files match.
@@ -109,10 +112,10 @@ when no files match.
 A single match is logged as a successful match. Multiple matches are logged as a
 multi-match result, with paths emitted at debug level.
 
-## Example with tier extraction
+## Example With Metadata Extraction
 
 ```python
-from psair.metadata.tiers import TierManager
+from psair.metadata.tiers import MetadataManager
 from psair.metadata.discovery import find_matching_files
 
 config = {
@@ -122,8 +125,8 @@ config = {
     }
 }
 
-tm = TierManager(config)
-labels = tm.match_tiers("AC001_Pre_story.cha", return_none=True)
+manager = MetadataManager(config)
+labels = manager.match_metadata("AC001_Pre_story.cha", return_none=True)
 
 matches = find_matching_files(
     match_tiers=[labels["site"], labels["test"]],
@@ -134,9 +137,9 @@ matches = find_matching_files(
 ```
 
 This looks for score spreadsheets in `data/metadata` whose filenames include
-the same site and test labels extracted from the text filename.
+the same site and test labels extracted from the text file path.
 
-## Practical guidance
+## Practical Guidance
 
 Use this utility when filenames carry enough structure to identify related
 files without opening them. It is best suited to small and medium research data

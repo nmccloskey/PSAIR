@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 from psair.core.logger import logger, configure_file_handler
-from psair.metadata.tiers import TierManager
+from psair.metadata.tiers import MetadataManager
 from psair.eda.EDADaemon import EDADaemon
 from psair.etl.SQLDaemon import SQLDaemon, Table
 from psair.eda.visualization import visualize_distinctive_features, generate_corr_maps, generate_data_heatmaps
@@ -29,7 +29,7 @@ class OutputManager:
 
             cls._instance._init_db()
             cls._instance.db = SQLDaemon(cls._instance)
-            cls._instance.tm = TierManager(cls._instance)
+            cls._instance.tm = MetadataManager(cls._instance)
             cls._instance.eda = EDADaemon(cls._instance)
 
             logger.info("OutputManager initialized successfully.")

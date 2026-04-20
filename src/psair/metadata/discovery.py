@@ -11,7 +11,7 @@ def find_matching_files(
     deduplicate=True,
 ):
     """
-    Recursively find files matching tier labels and a base pattern.
+    Recursively find files matching metadata labels and a base pattern.
 
     Behavior
     --------
@@ -24,7 +24,7 @@ def find_matching_files(
     Parameters
     ----------
     match_tiers : list[str] | None
-        Tier labels (e.g., ["AC", "PreTx"]). None/empty ignored.
+        Metadata labels (e.g., ["AC", "PreTx"]). None/empty ignored.
     directories : Path | str | list[Path | str] | None
         One or more directories to search (default: CWD).
     search_base : str
@@ -60,7 +60,9 @@ def find_matching_files(
             logger.error(f"Error searching in {get_rel_path(d)}: {e}")
 
     if not all_matches:
-        logger.warning(f"No matches found for base '{search_base}' with tiers {match_tiers}.")
+        logger.warning(
+            f"No matches found for base '{search_base}' with metadata labels {match_tiers}."
+        )
         return []
 
     if deduplicate:

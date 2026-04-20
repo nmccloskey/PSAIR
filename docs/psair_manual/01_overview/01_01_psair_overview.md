@@ -46,10 +46,10 @@ should be treated as evolving APIs rather than stable interfaces.
 
 The metadata utilities include:
 
-- configurable tier extraction from filenames
-- literal-value and regex-based tier definitions
-- default filename-stem extraction when no tiers are configured
-- recursive file discovery using tier labels, a filename base, and extension
+- configurable metadata field extraction from relative paths
+- literal-value and regex-based metadata field definitions
+- default filename-stem extraction when no metadata fields are configured
+- recursive file discovery using metadata labels, a filename base, and extension
 - optional duplicate filename handling across search directories
 
 The NLP utilities include:

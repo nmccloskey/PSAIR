@@ -1,22 +1,25 @@
-# Metadata Tiers
+# Metadata Fields
 
 ## Purpose
 
-The metadata tier system extracts structured labels from text filenames. It is
-intended for research repositories where filenames encode useful information
-such as site, group, assessment time, task, study identifier, or corpus label.
+The metadata field system extracts structured labels from text file paths. It
+is intended for research repositories where folder names or filenames encode
+useful information such as site, group, assessment time, task, study identifier,
+or corpus label.
 
 The implementation lives in `psair.metadata.tiers` and centers on two objects:
 
-- `Tier`: one compiled filename-matching rule
-- `TierManager`: an ordered collection of tiers built from configuration
+- `MetadataField`: one compiled path-matching rule
+- `MetadataManager`: an ordered collection of metadata fields built from configuration
 
-Tiers are deliberately simple. They search a filename or other text string and
-return the first matching substring for each configured tier.
+Metadata fields are deliberately simple. They search the relative path under
+`input_dir`, checking folder names before the filename, and return the first
+matching substring for each configured metadata field.
 
-## Configuration shape
+## Configuration Shape
 
-`TierManager` expects a dictionary with a `tiers` entry:
+`MetadataManager` expects a dictionary with a `tiers` entry. The key is still
+named `tiers` for compatibility with existing user configuration files:
 
 ```yaml
 tiers:
@@ -25,35 +28,35 @@ tiers:
   study_id: "(AC|BU|TU)\\d+"
 ```
 
-Each tier value can be either:
+Each metadata field value can be either:
 
 - a list of strings, interpreted as literal allowed values
 - a string, interpreted as a regular expression
 
-The order of tiers follows the order in the configuration dictionary. That
-order is preserved by `get_tier_names()` and by the dictionaries returned from
-`match_tiers()`.
+The order of metadata fields follows the order in the configuration dictionary.
+That order is preserved by `get_metadata_field_names()` and by the dictionaries
+returned from `match_metadata()`.
 
-## Literal value tiers
+## Literal Value Fields
 
-A list of strings creates a literal-value tier:
+A list of strings creates a literal-value metadata field:
 
 ```yaml
 tiers:
   site: [AC, BU, TU]
 ```
 
-This tier searches for any of the listed values in the filename. Values are
-escaped before the regex is compiled, so characters such as `+`, `.`, or `-`
-are treated literally rather than as regex syntax.
+This metadata field searches for any of the listed values in the relative path.
+Values are escaped before the regex is compiled, so characters such as `+`, `.`,
+or `-` are treated literally rather than as regex syntax.
 
 Example:
 
 ```python
-from psair.metadata.tiers import TierManager
+from psair.metadata.tiers import MetadataManager
 
-tm = TierManager({"tiers": {"site": ["AC", "BU", "TU"]}})
-tm.match_tiers("AC001_Pre_story.cha")
+manager = MetadataManager({"tiers": {"site": ["AC", "BU", "TU"]}})
+manager.match_metadata("AC001_Pre_story.cha")
 ```
 
 Result:
@@ -62,23 +65,23 @@ Result:
 {"site": "AC"}
 ```
 
-## Regex tiers
+## Regex Fields
 
-A string creates a regex tier:
+A string creates a regex metadata field:
 
 ```yaml
 tiers:
   study_id: "(AC|BU|TU)\\d+"
 ```
 
-Regex tiers are useful when the metadata value has a pattern rather than a
-fixed list of known values.
+Regex metadata fields are useful when the metadata value has a pattern rather
+than a fixed list of known values.
 
 Example:
 
 ```python
-tm = TierManager({"tiers": {"study_id": r"(AC|BU|TU)\d+"}})
-tm.match_tiers("AC001_Pre_story.cha")
+manager = MetadataManager({"tiers": {"study_id": r"(AC|BU|TU)\d+"}})
+manager.match_metadata("AC001_Pre_story.cha")
 ```
 
 Result:
@@ -87,22 +90,23 @@ Result:
 {"study_id": "AC001"}
 ```
 
-## Matching behavior
+## Path Matching
 
-Use `match_tiers(text)` to extract all configured tiers from a filename or text
-label:
+Use `match_metadata(path)` to extract all configured metadata fields from a
+file path:
 
 ```python
 config = {
+    "input_dir": "data/input",
     "tiers": {
         "site": ["AC", "BU", "TU"],
-        "test": ["Pre", "Post", "Maint"],
+        "test": ["pretx", "posttx"],
         "study_id": r"(AC|BU|TU)\d+",
     }
 }
 
-tm = TierManager(config)
-tm.match_tiers("AC001_Pre_story.cha")
+manager = MetadataManager(config)
+manager.match_metadata("data/input/pretx/AC001_story.cha")
 ```
 
 Result:
@@ -110,16 +114,40 @@ Result:
 ```python
 {
     "site": "AC",
-    "test": "Pre",
+    "test": "pretx",
     "study_id": "AC001",
 }
 ```
 
-By default, an unmatched tier returns the tier name. This keeps a placeholder in
-the result and makes missing matches visible in downstream tables:
+When `input_dir` is configured and the provided path is absolute, matching is
+based on the relative path below `input_dir`. For example, if `input_dir` is
+`data/input`, the file `data/input/pretx/par1.cha` is searched as:
+
+```text
+pretx
+par1.cha
+```
+
+Folder names are searched before the filename. This supports directory-based
+metadata such as:
+
+```text
+pretx/par1.cha
+posttx/par1.cha
+```
+
+If both folders and filenames contain distinct matches for the same metadata
+field, the first match in relative path order is used and a warning is logged.
+Repeated copies of the same value do not produce a warning.
+
+## Missing Values
+
+By default, an unmatched metadata field returns the metadata field name. This
+keeps a placeholder in the result and makes missing matches visible in
+downstream tables:
 
 ```python
-tm.match_tiers("AC001_story.cha")
+manager.match_metadata("AC001_story.cha")
 ```
 
 Result:
@@ -135,7 +163,7 @@ Result:
 Set `return_none=True` when missing values should be represented as `None`:
 
 ```python
-tm.match_tiers("AC001_story.cha", return_none=True)
+manager.match_metadata("AC001_story.cha", return_none=True)
 ```
 
 Result:
@@ -148,29 +176,30 @@ Result:
 }
 ```
 
-Set `must_match=True` when missing tiers should be logged as warnings:
+Set `must_match=True` when missing metadata fields should be logged as warnings:
 
 ```python
-tm.match_tiers("AC001_story.cha", return_none=True, must_match=True)
+manager.match_metadata("AC001_story.cha", return_none=True, must_match=True)
 ```
 
-## Default tier
+## Default Field
 
 If the config is missing, does not contain a valid `tiers` dictionary, or the
-tiers dictionary is empty, `TierManager` creates one default tier:
+`tiers` dictionary is empty, `MetadataManager` creates one default metadata
+field:
 
 ```python
 {"file_name": "..."}
 ```
 
-The default tier uses the regex `.*(?=\.cha)`, which extracts the full filename
-stem before `.cha`.
+The default metadata field uses the regex `.*(?=\.cha)`, which extracts the
+full filename stem before `.cha`.
 
 For example:
 
 ```python
-tm = TierManager({})
-tm.match_tiers("AC001_Pre_story.cha")
+manager = MetadataManager({})
+manager.match_metadata("AC001_Pre_story.cha")
 ```
 
 Result:
@@ -179,19 +208,19 @@ Result:
 {"file_name": "AC001_Pre_story"}
 ```
 
-## Name transforms
+## Name Transforms
 
-`TierManager` accepts an optional `name_transform` callable. This can normalize
-tier names as they are read from configuration:
+`MetadataManager` accepts an optional `name_transform` callable. This can
+normalize metadata field names as they are read from configuration:
 
 ```python
-tm = TierManager(
+manager = MetadataManager(
     {"tiers": {"Study ID": r"(AC|BU|TU)\d+"}},
     name_transform=lambda name: name.lower().replace(" ", "_"),
 )
 ```
 
-Resulting tier name:
+Resulting metadata field name:
 
 ```python
 "study_id"
@@ -199,23 +228,31 @@ Resulting tier name:
 
 ## Validation
 
-Tier construction validates the config before matching:
+Metadata field construction validates the config before matching:
 
-- regex tiers must be non-empty valid regular expressions
-- value tiers must be lists containing only strings
+- regex metadata fields must be non-empty valid regular expressions
+- value metadata fields must be lists containing only strings
 - empty value lists are allowed, but they log a warning and never match
-- unsupported tier specifications raise `TypeError`
+- unsupported metadata field specifications raise `TypeError`
 
-This validation happens when `TierManager` is constructed, so configuration
+This validation happens when `MetadataManager` is constructed, so configuration
 errors are found early.
 
-## Practical guidance
+## Compatibility
 
-Use literal value tiers for controlled labels that should match exactly, such
-as known sites or assessment names. Use regex tiers for identifiers, dates, or
-compound labels whose valid values are easier to describe with a pattern.
+The old names `Tier`, `TierManager`, `get_tier_names()`, and `match_tiers()`
+remain available as aliases for existing code. New code should use
+`MetadataField`, `MetadataManager`, `get_metadata_field_names()`, and
+`match_metadata()`.
 
-Keep tier labels distinct enough that accidental substring matches are unlikely.
-For example, if one tier has values `["Pre", "Post"]`, filenames such as
-`"Preview_AC001.cha"` may match `Pre` unless the tier is expressed with a more
-specific regex.
+## Practical Guidance
+
+Use literal value metadata fields for controlled labels that should match
+exactly, such as known sites or assessment names. Use regex metadata fields for
+identifiers, dates, or compound labels whose valid values are easier to
+describe with a pattern.
+
+Keep labels distinct enough that accidental substring matches are unlikely.
+For example, if one metadata field has values `["Pre", "Post"]`, filenames
+such as `"Preview_AC001.cha"` may match `Pre` unless the metadata field is
+expressed with a more specific regex.

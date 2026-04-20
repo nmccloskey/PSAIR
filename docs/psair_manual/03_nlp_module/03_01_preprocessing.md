@@ -109,7 +109,7 @@ or sentence.
 - `doc_id`
 - `doc_label`
 - `text`
-- any tier metadata returned by `TierManager.match_tiers()`
+- any metadata fields returned by `MetadataManager.match_metadata()`
 
 It initializes preprocessing result tables from
 `PM.sections["preprocessing"].init_results_dict()`, loads the shared spaCy
