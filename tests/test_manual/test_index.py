@@ -81,6 +81,10 @@ def test_render_generated_tree_text_includes_directories_and_files(tmp_path: Pat
     assert "section/" in rendered
     assert "02_topic.md" in rendered
 
+    rendered_with_titles = render_generated_tree_text(tree, show_titles=True)
+    assert "01_intro.md — Introduction" in rendered_with_titles
+    assert "02_topic.md — Topic" in rendered_with_titles
+
 
 def test_search_manual_scores_titles_and_content(tmp_path: Path) -> None:
     manual = tmp_path / "manual"
