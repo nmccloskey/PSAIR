@@ -7,7 +7,7 @@ is intended for research repositories where folder names or filenames encode
 useful information such as site, group, assessment time, task, study identifier,
 or corpus label.
 
-The implementation lives in `psair.metadata.tiers` and centers on two objects:
+The implementation lives in `psair.metadata.metadata_fields` and centers on two objects:
 
 - `MetadataField`: one compiled path-matching rule
 - `MetadataManager`: an ordered collection of metadata fields built from configuration
@@ -18,11 +18,10 @@ matching substring for each configured metadata field.
 
 ## Configuration Shape
 
-`MetadataManager` expects a dictionary with a `tiers` entry. The key is still
-named `tiers` for compatibility with existing user configuration files:
+`MetadataManager` expects a dictionary with a `metadata_fields` entry:
 
 ```yaml
-tiers:
+metadata_fields:
   site: [AC, BU, TU]
   test: [Pre, Post, Maint]
   study_id: "(AC|BU|TU)\\d+"
@@ -42,7 +41,7 @@ returned from `match_metadata()`.
 A list of strings creates a literal-value metadata field:
 
 ```yaml
-tiers:
+metadata_fields:
   site: [AC, BU, TU]
 ```
 
@@ -53,9 +52,9 @@ or `-` are treated literally rather than as regex syntax.
 Example:
 
 ```python
-from psair.metadata.tiers import MetadataManager
+from psair.metadata.metadata_fields import MetadataManager
 
-manager = MetadataManager({"tiers": {"site": ["AC", "BU", "TU"]}})
+manager = MetadataManager({"metadata_fields": {"site": ["AC", "BU", "TU"]}})
 manager.match_metadata("AC001_Pre_story.cha")
 ```
 
@@ -70,7 +69,7 @@ Result:
 A string creates a regex metadata field:
 
 ```yaml
-tiers:
+metadata_fields:
   study_id: "(AC|BU|TU)\\d+"
 ```
 
@@ -80,7 +79,7 @@ than a fixed list of known values.
 Example:
 
 ```python
-manager = MetadataManager({"tiers": {"study_id": r"(AC|BU|TU)\d+"}})
+manager = MetadataManager({"metadata_fields": {"study_id": r"(AC|BU|TU)\d+"}})
 manager.match_metadata("AC001_Pre_story.cha")
 ```
 
@@ -98,7 +97,7 @@ file path:
 ```python
 config = {
     "input_dir": "data/input",
-    "tiers": {
+    "metadata_fields": {
         "site": ["AC", "BU", "TU"],
         "test": ["pretx", "posttx"],
         "study_id": r"(AC|BU|TU)\d+",
@@ -184,8 +183,8 @@ manager.match_metadata("AC001_story.cha", return_none=True, must_match=True)
 
 ## Default Field
 
-If the config is missing, does not contain a valid `tiers` dictionary, or the
-`tiers` dictionary is empty, `MetadataManager` creates one default metadata
+If the config is missing, does not contain a valid `metadata_fields` dictionary, or the
+`metadata_fields` dictionary is empty, `MetadataManager` creates one default metadata
 field:
 
 ```python
@@ -215,7 +214,7 @@ normalize metadata field names as they are read from configuration:
 
 ```python
 manager = MetadataManager(
-    {"tiers": {"Study ID": r"(AC|BU|TU)\d+"}},
+    {"metadata_fields": {"Study ID": r"(AC|BU|TU)\d+"}},
     name_transform=lambda name: name.lower().replace(" ", "_"),
 )
 ```
